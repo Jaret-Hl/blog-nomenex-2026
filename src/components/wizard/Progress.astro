@@ -1,0 +1,39 @@
+---
+import type { WizardStep } from '../../config/wizardSteps';
+
+export interface Props {
+  currentStep: number;
+  steps: WizardStep[];
+}
+
+const { currentStep, steps } = Astro.props;
+
+const totalSteps = steps.length;
+const step = Math.min(Math.max(currentStep, 1), totalSteps);
+const progress = Math.round((step / totalSteps) * 100);
+---
+
+<!-- Barra -->
+<div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden mb-4">
+  <div
+    class="bg-slate-600 h-2 transition-all duration-300"
+    style={`width: ${progress}%`}
+  ></div>
+</div>
+
+<!-- Labels -->
+<ol class="flex justify-between text-xs text-slate-600">
+  {steps.map((s) => (
+    <li
+      class={
+        step === s.id
+          ? 'font-semibold text-slate-800'
+          : step > s.id
+          ? 'text-slate-500'
+          : 'text-slate-400'
+      }
+    >
+      {s.label}
+    </li>
+  ))}
+</ol>

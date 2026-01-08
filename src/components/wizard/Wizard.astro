@@ -1,0 +1,28 @@
+---
+import type { WizardStep } from '../../config/wizardSteps';
+
+import Step1 from './Step1.astro';
+import Step2 from './Step2.astro';
+import Step3 from './Step3.astro';
+
+
+const { step, data, steps } = Astro.props;
+
+// Normalización
+const totalSteps = steps.length;
+const currentStep = Math.min(Math.max(step, 1), totalSteps);
+---
+
+<section class="wizard-container">
+  {currentStep === 1 && <Step1 data={data} />}
+  {currentStep === 2 && <Step2 data={data} />}
+  {currentStep === 3 && <Step3 data={data} />}
+  {currentStep === 4 && (
+    <div class="text-sm text-slate-600">
+      <p class="font-medium">Tu cotización está casi lista.</p>
+      <p>
+        Agenda una asesoría o recibe la cotización por correo para continuar.
+      </p>
+    </div>
+  )}
+</section>
