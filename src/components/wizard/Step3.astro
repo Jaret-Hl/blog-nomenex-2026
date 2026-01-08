@@ -1,0 +1,25 @@
+<!-- integrando paquetes -->
+<form method="POST" class="pt-4 max-w-3xl mx-auto">
+  <input type="hidden" name="step" value="3" />
+  <div class="space-y-4">
+    <h2 class="text-xl font-medium">3. Instalación de biométricos</h2>
+    <div
+      id="paquetesContainer"
+      class="flex flex-col gap-4 w-full max-w-4xl mt-2"
+    >
+    </div>
+    <div class="flex justify-between">
+      <a href="/?step=2" class="px-4 py-2 border rounded-md text-sm">
+        Volver
+      </a>
+
+      <button
+        type="submit"
+        formaction="/?step=4"
+        class="bg-slate-600 text-white px-4 py-2 rounded-md"
+      >
+        Continuar
+      </button>
+    </div>
+  </div>
+</form>

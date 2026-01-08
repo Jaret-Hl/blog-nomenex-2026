@@ -1,8 +1,10 @@
 ---
+import { actions } from "astro:actions";
 
+const { data } = Astro.props;
 ---
-<!-- <form method="POST" action={actions.wizardStep}> -->
-<form method="POST" class="pt-4 max-w-3xl mx-auto">
+
+<form class="pt-4 max-w-3xl mx-auto" method="POST" action={actions.wizardStep}>
   <input type="hidden" name="step" value="1" />
 
   <div class="space-y-4">
@@ -29,7 +31,7 @@
             type="range"
             min="1"
             max="100"
-            value="5"
+            value={data.company?.employees ?? 5}
             class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-500"
           />
           <div class="flex justify-between text-xs text-slate-500 mt-1">
@@ -82,11 +84,14 @@
     </div>
 
     <!-- Botón -->
-    <button
-      type="submit"
-      class="w-full md:w-auto text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-6 py-2.5"
-    >
-      Continuar
-    </button>
+    <div class="flex justify-end">
+      <button
+        type="submit"
+        formaction={`/?step=2`}
+        class="bg-slate-600 text-white px-4 py-2 rounded-md"
+      >
+        Continuar
+      </button>
+    </div>
   </div>
 </form>
