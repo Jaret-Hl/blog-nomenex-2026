@@ -3,13 +3,24 @@ import Layout from "../layouts/Layout.astro";
 import Header from "../sections/Header.astro";
 import Hero from "../sections/Hero.astro";
 import Footer from "../sections/Footer.astro";
+import { WIZARD_STEPS } from '../config/wizardSteps';
+
+const stepParam = Number(Astro.url.searchParams.get('step'));
+const step = Number(Astro.url.searchParams.get('step') ?? 1);
+// Cookies
+const wizardCookie = Astro.cookies.get('wizard-data');
+const data = wizardCookie ? JSON.parse(wizardCookie.value) : {};
 ---
 
 <Layout>
   <div class="flex min-h-screen flex-col">
     <Header />
     <div class="flex flex-1">
-		<Hero />
+		<Hero
+      step={step}
+      data={data}
+      steps={WIZARD_STEPS} 
+    />
 	</div>
 	<Footer />
   </div>
