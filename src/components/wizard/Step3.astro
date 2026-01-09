@@ -1,3 +1,8 @@
+---
+// import type { WizardData } from "../../types/wizard";
+// const { data } = Astro.props as { data: WizardData };
+const { data } = Astro.props;
+---
 <!-- integrando paquetes -->
 <form method="POST" class="pt-4 max-w-3xl mx-auto">
   <input type="hidden" name="step" value="3" />
@@ -7,6 +12,45 @@
       id="paquetesContainer"
       class="flex flex-col gap-4 w-full max-w-4xl mt-2"
     >
+      <!-- Paquete Básico -->
+      <label
+        class="border rounded-lg p-4 flex items-center cursor-pointer hover:border-blue-500"
+      >
+        <input
+          type="radio"
+          name="biometricPackage"
+          value="basic"
+          class="mr-4 accent-blue-500"
+          checked={data.company?.biometricPackage === 'basic'}
+        />
+        <div>
+          <h3 class="text-lg font-medium">Paquete Básico</h3>
+          <p class="text-sm text-slate-600">
+            Incluye instalación de 1 dispositivo biométrico.
+          </p>
+        </div>
+      </label>
+
+      <!-- Paquete Avanzado -->
+      <label
+        class="border rounded-lg p-4 flex items-center cursor-pointer hover:border-blue-500"
+      >
+        <input
+          type="radio"
+          name="biometricPackage"
+          value="advanced"
+          class="mr-4 accent-blue-500"
+          checked={data.company?.biometricPackage === 'advanced'}
+        />
+        <div>
+          <h3 class="text-lg font-medium">Paquete Avanzado</h3>
+          <p class="text-sm text-slate-600">
+            Incluye instalación de hasta 3 dispositivos biométricos y soporte
+            prioritario.
+          </p>
+        </div>
+      </label>
+
     </div>
     <div class="flex justify-between">
       <a href="/?step=2" class="px-4 py-2 border rounded-md text-sm">

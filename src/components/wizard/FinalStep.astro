@@ -218,8 +218,9 @@
         </button>
 
         <button
-          type="button"
+          type="submit"
           id="sendEmailBtn"
+          name="sendEmail"
           class="w-full bg-white hover:bg-gray-50 text-slate-700 font-medium text-sm px-6 py-2.5 rounded-lg border-2 border-slate-300 hover:border-slate-400 transition-all flex items-center justify-center gap-2"
         >
           <svg
@@ -265,3 +266,15 @@
     </div>
   </div>
 </div>
+
+<script>
+  import { actions } from "astro:actions";
+  // const { data } = Astro.props;
+
+  const sendEmail = document.getElementById("sendEmailBtn") as HTMLButtonElement;
+
+  sendEmail.addEventListener("click", (event) => {
+    event.preventDefault();
+    console.log('Aquí somos la verdura del caldo')
+  }); 
+</script>

@@ -1,11 +1,16 @@
----
-import { actions } from "astro:actions";
-
+---  
+import { actions } from 'astro:actions';
+import Alert from '../ui/Alert.astro';
 const { data } = Astro.props;
 ---
 
-<form class="pt-4 max-w-3xl mx-auto" method="POST" action={actions.wizardStep}>
+<form class="pt-4 max-w-3xl mx-auto" id="step1Form">
   <input type="hidden" name="step" value="1" />
+
+  <!-- Alertas -->
+  <Alert id="successAlert" type="success" />
+  <Alert id="errorAlert" type="error" />
+  <Alert id="warningAlert" type="warning" />
 
   <div class="space-y-4">
     <!-- Header compacto -->
@@ -48,9 +53,11 @@ const { data } = Astro.props;
             <label class="block text-xs font-medium mb-1">Número exacto</label>
             <input
               id="employeeCount"
+              name="employees"
               type="number"
               min="1"
-              value="5"
+              value={data.company?.employees ?? 5}
+              required
               class="w-full rounded-md border px-3 py-2 text-sm"
             />
           </div>
@@ -68,16 +75,19 @@ const { data } = Astro.props;
       <div class="space-y-3">
         <div>
           <label class="block text-sm font-medium mb-2"
-            >Sedes de tu empresa</label
+        >Sedes de tu empresa</label
           >
           <select
-            id="locations"
-            class="w-full rounded-md border px-3 py-2 text-sm"
+        id="locations"
+        name="locations"
+        required
+        class="w-full rounded-md border px-3 py-2 text-sm"
           >
-            <option value="1">1 sede</option>
-            <option value="2">2 sedes</option>
-            <option value="3">3 sedes</option>
-            <option value="4">4+ sedes</option>
+        <option value="" selected={!data.company?.locations}>Selecciona una opción</option>
+        <option value="1" selected={data.company?.locations === '1'}>1 sede</option>
+        <option value="2" selected={data.company?.locations === '2'}>2 sedes</option>
+        <option value="3" selected={data.company?.locations === '3'}>3 sedes</option>
+        <option value="4" selected={data.company?.locations === '4'}>4+ sedes</option>
           </select>
         </div>
       </div>
@@ -87,11 +97,113 @@ const { data } = Astro.props;
     <div class="flex justify-end">
       <button
         type="submit"
-        formaction={`/?step=2`}
-        class="bg-slate-600 text-white px-4 py-2 rounded-md"
+        class="bg-slate-600 text-white px-4 py-2 rounded-md hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        id="submitBtn"
       >
         Continuar
       </button>
     </div>
   </div>
 </form>
+
+<script>
+  import { actions } from 'astro:actions';
+  import { AlertManager } from '../../lib/alertUtils';
+
+  const form = document.getElementById('step1Form') as HTMLFormElement;
+  const slider = document.getElementById('employeeRangeSlider') as HTMLInputElement;
+  const numberInput = document.getElementById('employeeCount') as HTMLInputElement;
+  const locationSelect = document.getElementById('locations') as HTMLSelectElement;
+  const submitBtn = document.getElementById('submitBtn') as HTMLButtonElement;
+
+  // Limpiar errores al escribir
+  numberInput.addEventListener('input', () => {
+    const value = parseInt(numberInput.value) || 0;
+    if (value <= 100) {
+      slider.value = numberInput.value;
+    }
+    AlertManager.clearFieldError('employeeCount');
+    AlertManager.hide('errorAlert');
+  });
+
+  locationSelect.addEventListener('change', () => {
+    AlertManager.clearFieldError('locations');
+    AlertManager.hide('errorAlert');
+  });
+
+  slider.addEventListener('input', () => {
+    numberInput.value = slider.value;
+    AlertManager.clearFieldError('employeeCount');
+  });
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    // Limpiar errores previos
+    AlertManager.clearAllFieldErrors('step1Form');
+    AlertManager.hide('errorAlert');
+    AlertManager.hide('successAlert');
+    
+    // Validación del lado del cliente
+    const employees = parseInt(numberInput.value);
+    const locations = locationSelect.value;
+
+    let hasErrors = false;
+
+    if (!employees || employees < 1) {
+      AlertManager.showFieldError('employeeCount', 'Debes indicar al menos 1 empleado');
+      hasErrors = true;
+    } else if (employees > 1000) {
+      AlertManager.showFieldError('employeeCount', 'Máximo 1000 empleados');
+      hasErrors = true;
+    }
+
+    if (!locations) {
+      AlertManager.showFieldError('locations', 'Debes seleccionar el número de sedes');
+      hasErrors = true;
+    }
+
+    if (hasErrors) {
+      AlertManager.showError('errorAlert', 'Por favor completa todos los campos requeridos');
+      return;
+    }
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Guardando...';
+
+    try {
+      const formData = new FormData(form);
+      const response = await actions.wizardStep(formData);
+
+      if (response.error) {
+        const errorMessage = response.error.message || 'Error al guardar los datos';
+        AlertManager.showError('errorAlert', errorMessage);
+        
+        // Mostrar errores específicos de campos si existen
+        const errorData = response.error as any;
+        if (errorData.fields && typeof errorData.fields === 'object') {
+          Object.entries(errorData.fields as Record<string, string[]>).forEach(([field, messages]) => {
+            if (Array.isArray(messages) && messages.length > 0) {
+              AlertManager.showFieldError(field, messages[0]);
+            }
+          });
+        }
+        return;
+      }
+
+      if (response.data?.success) {
+        AlertManager.showSuccess('successAlert', '✓ Datos guardados correctamente', 1500);
+        
+        setTimeout(() => {
+          window.location.href = `/?step=${response.data.nextStep}`;
+        }, 1500);
+      }
+    } catch (error) {
+      AlertManager.showError('errorAlert', 'Error inesperado. Por favor intenta de nuevo.');
+      console.error('Error:', error);
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Continuar';
+    }
+  });
+</script>
