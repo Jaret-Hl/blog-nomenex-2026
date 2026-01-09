@@ -1,5 +1,11 @@
+---
+import paquetes from "@/data/paquetes.json";
+import PaqueteItem from "./paquetes/PaqueteItem.astro";
+const { data } = Astro.props;
+---
+
 <!-- integrando paquetes -->
-<form method="POST" class="pt-4 max-w-3xl mx-auto">
+<form class="pt-4 max-w-3xl mx-auto" id="step2Form">
   <input type="hidden" name="step" value="2" />
   <div class="space-y-4">
     <h2 class="text-xl font-medium">
@@ -9,6 +15,14 @@
       id="paquetesContainer"
       class="flex flex-col gap-4 w-full max-w-4xl mt-2"
     >
+      {
+        paquetes.map((paquete) => (
+          <PaqueteItem
+            paquete={paquete}
+            isSelected={data.packageId === paquete.id}
+          />
+        ))
+      }
     </div>
     <div class="flex justify-between">
       <!-- VOLVER -->
@@ -19,7 +33,7 @@
       <!-- CONTINUAR -->
       <button
         type="submit"
-        formaction="/?step=3"
+        id="submitBtn"
         class="bg-slate-600 text-white px-4 py-2 rounded-md"
       >
         Continuar
@@ -27,3 +41,82 @@
     </div>
   </div>
 </form>
+
+<script>
+  import { actions } from "astro:actions";
+
+  const form = document.querySelector("form") as HTMLFormElement;
+  const submitBtn = document.getElementById("submitBtn") as HTMLButtonElement;
+  const paqueteCards = form.querySelectorAll(".paqueteCard");
+
+  paqueteCards.forEach((card) => {
+    const toggleButton = card.querySelector(
+      ".toggle-details"
+    ) as HTMLButtonElement;
+    const detailsContent = card.querySelector(
+      ".details-content"
+    ) as HTMLDivElement;
+    const svg = toggleButton.querySelector("svg")!;
+
+    toggleButton.addEventListener("click", () => {
+      const isHidden = detailsContent.classList.contains("hidden");
+      detailsContent.classList.toggle("hidden");
+      svg.style.transform = isHidden ? "rotate(180deg)" : "rotate(0deg)";
+    });
+
+    const radioInput = card.querySelector(
+      'input[type="radio"]'
+    ) as HTMLInputElement;
+    card.addEventListener("click", (e) => {
+      if ((e.target as HTMLElement).closest(".toggle-details")) return;
+
+      radioInput.checked = true;
+      paqueteCards.forEach((otherCard) => {
+        otherCard.classList.remove("border-blue-600", "bg-blue-50/40");
+        otherCard.classList.add(
+          "border-slate-100",
+          "bg-white",
+          "dark:bg-gray-800"
+        );
+      });
+      card.classList.add("border-blue-600", "bg-blue-50/40");
+      card.classList.remove("border-slate-100", "bg-white", "dark:bg-gray-800");
+    });
+  });
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const selectedPackage = form.querySelector(
+      'input[name="packageId"]:checked'
+    ) as HTMLInputElement;
+    if (!selectedPackage) {
+      alert("Por favor, selecciona un paquete para continuar.");
+      return;
+    }
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Guardando...";
+
+    try {
+      const formData = new FormData(form);
+      const response = await actions.wizardStep(formData);
+
+      if (response.data?.success) {
+        window.location.href = `/?step=${response.data.nextStep}`;
+      } else {
+        alert(
+          "Ocurrió un error al guardar tu selección. Por favor, intenta de nuevo."
+        );
+      }
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      alert(
+        "Ocurrió un error al guardar tu selección. Por favor, intenta de nuevo."
+      );
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = "Continuar";
+    }
+  });
+</script>

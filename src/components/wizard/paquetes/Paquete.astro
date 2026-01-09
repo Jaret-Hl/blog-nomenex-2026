@@ -1,0 +1,13 @@
+---
+import paquetes from '@/data/paquetes.json';
+import PaqueteItem from './PaqueteItem.astro';
+const { data } = Astro.props;
+---
+
+<ol class="relative border-s border-gray-200 ml-4">
+    {paquetes.map((paquete)=>(
+        <li>
+            <PaqueteItem paquete={paquete} isSelected={data?.packageId === paquete.id} />
+        </li>
+    ))}
+</ol>
