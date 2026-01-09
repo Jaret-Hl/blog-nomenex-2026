@@ -14,7 +14,7 @@ const totalSteps = steps.length;
 const currentStep = Math.min(Math.max(step, 1), totalSteps);
 ---
 
-<section class="wizard-container">
+<section class="wizard-container text-gray-900 dark:text-gray-100">
   {currentStep === 1 && <Step1 data={data} />}
   {currentStep === 2 && <Step2 data={data} />}
   {currentStep === 3 && <Step3 data={data} />}

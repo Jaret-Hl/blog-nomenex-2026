@@ -3,67 +3,79 @@
 // const { data } = Astro.props as { data: WizardData };
 const { data } = Astro.props;
 ---
+
 <!-- integrando paquetes -->
 <form method="POST" class="pt-4 max-w-3xl mx-auto">
   <input type="hidden" name="step" value="3" />
   <div class="space-y-4">
     <h2 class="text-xl font-medium">3. Instalación de biométricos</h2>
-    <div
-      id="paquetesContainer"
-      class="flex flex-col gap-4 w-full max-w-4xl mt-2"
+    <p class="text-sm text-slate-600 dark:text-white/70 mt-2">
+      Cuéntanos si requieres instalación y cuántos dispositivos.
+    </p>
+
+    <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <label class="flex items-center gap-3">
+          <input type="radio" name="bioNeeded" value="yes" id="bioNeededYes" />
+          <span>Sí, quiero instalar dispositivos</span>
+        </label>
+        <label class="flex items-center gap-3 mt-3">
+          <input
+            type="radio"
+            name="bioNeeded"
+            value="no"
+            id="bioNeededNo"
+            checked
+          />
+          <span>No, solo software</span>
+        </label>
+
+        <!-- bioDetails oculto por defecto -->
+        <div id="bioDetails" class="mt-4 hidden">
+          <label class="block text-sm">Número de dispositivos</label>
+          <input
+            id="bioCount"
+            type="number"
+            min="0"
+            value="1"
+            class="mt-1 block w-28 rounded-md border px-3 py-2"
+          />
+
+          <label class="block text-sm mt-3">Tipo de dispositivo</label>
+          <select
+            id="bioType"
+            class="mt-1 block w-48 rounded-md border px-3 py-2"
+          >
+            <option value="basic">Biométrico básico</option>
+            <!-- <option value="advanced">Biométrico avanzado</option>
+                        <option value="terminal">
+                          Terminal (con pantalla)
+                        </option> -->
+          </select>
+        </div>
+      </div>
+
+      <div>
+        <div class="bg-gray-50 dark:bg-gray-800 p-4 rounded-md border border-2 border-dashed border-slate-200 dark:border-slate-700 mb-4">
+          <div class="font-medium">Incluye</div>
+          <ul class="list-disc ml-5 mt-2 text-sm text-slate-600 space-y-1 dark:text-white/70">
+            <li>Instalación en sitio</li>
+            <li>Configuración y pruebas</li>
+            <li>Capacitación inicial</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="flex justify-between">
+    <a href="/?step=2" class="px-4 py-2 border rounded-md text-sm"> Volver </a>
+
+    <button
+      type="submit"
+      formaction="/?step=4"
+      class="bg-slate-600 text-white px-4 py-2 rounded-md"
     >
-      <!-- Paquete Básico -->
-      <label
-        class="border rounded-lg p-4 flex items-center cursor-pointer hover:border-blue-500"
-      >
-        <input
-          type="radio"
-          name="biometricPackage"
-          value="basic"
-          class="mr-4 accent-blue-500"
-          checked={data.company?.biometricPackage === 'basic'}
-        />
-        <div>
-          <h3 class="text-lg font-medium">Paquete Básico</h3>
-          <p class="text-sm text-slate-600">
-            Incluye instalación de 1 dispositivo biométrico.
-          </p>
-        </div>
-      </label>
-
-      <!-- Paquete Avanzado -->
-      <label
-        class="border rounded-lg p-4 flex items-center cursor-pointer hover:border-blue-500"
-      >
-        <input
-          type="radio"
-          name="biometricPackage"
-          value="advanced"
-          class="mr-4 accent-blue-500"
-          checked={data.company?.biometricPackage === 'advanced'}
-        />
-        <div>
-          <h3 class="text-lg font-medium">Paquete Avanzado</h3>
-          <p class="text-sm text-slate-600">
-            Incluye instalación de hasta 3 dispositivos biométricos y soporte
-            prioritario.
-          </p>
-        </div>
-      </label>
-
-    </div>
-    <div class="flex justify-between">
-      <a href="/?step=2" class="px-4 py-2 border rounded-md text-sm">
-        Volver
-      </a>
-
-      <button
-        type="submit"
-        formaction="/?step=4"
-        class="bg-slate-600 text-white px-4 py-2 rounded-md"
-      >
-        Continuar
-      </button>
-    </div>
+      Continuar
+    </button>
   </div>
 </form>
