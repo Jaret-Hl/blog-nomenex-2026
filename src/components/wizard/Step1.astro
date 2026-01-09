@@ -194,8 +194,9 @@ const { data } = Astro.props;
       if (response.data?.success) {
         AlertManager.showSuccess('successAlert', '✓ Datos guardados correctamente', 1500);
         
+        // Navegar al siguiente step sin recargar la página
         setTimeout(() => {
-          window.location.href = `/?step=${response.data.nextStep}`;
+          document.dispatchEvent(new CustomEvent('wizard:next'));
         }, 1500);
       }
     } catch (error) {

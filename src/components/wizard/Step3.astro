@@ -5,7 +5,7 @@ const { data } = Astro.props;
 ---
 
 <!-- integrando paquetes -->
-<form method="POST" class="pt-4 max-w-3xl mx-auto">
+<form id="step3Form" class="pt-4 max-w-3xl mx-auto">
   <input type="hidden" name="step" value="3" />
   <div class="space-y-4">
     <h2 class="text-xl font-medium">3. Instalación de biométricos</h2>
@@ -68,14 +68,72 @@ const { data } = Astro.props;
     </div>
   </div>
   <div class="flex justify-between">
-    <a href="/?step=2" class="px-4 py-2 border rounded-md text-sm"> Volver </a>
+    <button 
+      type="button" 
+      id="backBtn"
+      class="px-4 py-2 border rounded-md text-sm hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+    >
+      Volver
+    </button>
 
     <button
       type="submit"
-      formaction="/?step=4"
-      class="bg-slate-600 text-white px-4 py-2 rounded-md"
+      id="submitBtn"
+      class="bg-slate-600 text-white px-4 py-2 rounded-md hover:bg-slate-700 transition-colors"
     >
       Continuar
     </button>
   </div>
 </form>
+
+<script>
+  import { actions } from "astro:actions";
+
+  const form = document.querySelector("#step3Form") as HTMLFormElement;
+  const backBtn = document.getElementById("backBtn") as HTMLButtonElement;
+  const submitBtn = document.getElementById("submitBtn") as HTMLButtonElement;
+  const bioNeededYes = document.getElementById("bioNeededYes") as HTMLInputElement;
+  const bioNeededNo = document.getElementById("bioNeededNo") as HTMLInputElement;
+  const bioDetails = document.getElementById("bioDetails") as HTMLDivElement;
+
+  // Botón volver sin recargar
+  backBtn.addEventListener("click", () => {
+    document.dispatchEvent(new CustomEvent('wizard:prev'));
+  });
+
+  // Mostrar/ocultar detalles biométricos
+  [bioNeededYes, bioNeededNo].forEach(radio => {
+    radio.addEventListener("change", () => {
+      if (bioNeededYes.checked) {
+        bioDetails.classList.remove("hidden");
+      } else {
+        bioDetails.classList.add("hidden");
+      }
+    });
+  });
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Guardando...";
+
+    try {
+      const formData = new FormData(form);
+      const response = await actions.wizardStep(formData);
+
+      if (response.data?.success) {
+        // Navegar al siguiente step sin recargar
+        document.dispatchEvent(new CustomEvent('wizard:next'));
+      } else {
+        alert("Ocurrió un error. Por favor, intenta de nuevo.");
+      }
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      alert("Ocurrió un error. Por favor, intenta de nuevo.");
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = "Continuar";
+    }
+  });
+</script>

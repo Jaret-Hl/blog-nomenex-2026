@@ -26,15 +26,19 @@ const { data } = Astro.props;
     </div>
     <div class="flex justify-between">
       <!-- VOLVER -->
-      <a href="/?step=1" class="px-4 py-2 border rounded-md text-sm">
+      <button 
+        type="button" 
+        id="backBtn"
+        class="px-4 py-2 border rounded-md text-sm hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+      >
         Volver
-      </a>
+      </button>
 
       <!-- CONTINUAR -->
       <button
         type="submit"
         id="submitBtn"
-        class="bg-slate-600 text-white px-4 py-2 rounded-md"
+        class="bg-slate-600 text-white px-4 py-2 rounded-md hover:bg-slate-700 transition-colors"
       >
         Continuar
       </button>
@@ -45,9 +49,15 @@ const { data } = Astro.props;
 <script>
   import { actions } from "astro:actions";
 
-  const form = document.querySelector("form") as HTMLFormElement;
+  const form = document.querySelector("#step2Form") as HTMLFormElement;
   const submitBtn = document.getElementById("submitBtn") as HTMLButtonElement;
+  const backBtn = document.getElementById("backBtn") as HTMLButtonElement;
   const paqueteCards = form.querySelectorAll(".paqueteCard");
+
+  // Botón volver sin recargar
+  backBtn.addEventListener("click", () => {
+    document.dispatchEvent(new CustomEvent('wizard:prev'));
+  });
 
   paqueteCards.forEach((card) => {
     const toggleButton = card.querySelector(
@@ -103,7 +113,8 @@ const { data } = Astro.props;
       const response = await actions.wizardStep(formData);
 
       if (response.data?.success) {
-        window.location.href = `/?step=${response.data.nextStep}`;
+        // Navegar al siguiente step sin recargar
+        document.dispatchEvent(new CustomEvent('wizard:next'));
       } else {
         alert(
           "Ocurrió un error al guardar tu selección. Por favor, intenta de nuevo."

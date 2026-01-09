@@ -14,9 +14,142 @@ const totalSteps = steps.length;
 const currentStep = Math.min(Math.max(step, 1), totalSteps);
 ---
 
-<section class="wizard-container text-gray-900 dark:text-gray-100">
-  {currentStep === 1 && <Step1 data={data} />}
-  {currentStep === 2 && <Step2 data={data} />}
-  {currentStep === 3 && <Step3 data={data} />}
-  {currentStep === 4 && <FinalStep />}
+<section class="wizard-container text-gray-900 dark:text-gray-100" data-wizard-step={currentStep}>
+  <!-- Renderizamos todos los steps pero mostramos solo el activo -->
+  <div class="wizard-step" data-step="1" style={currentStep !== 1 ? 'display:none' : ''}>
+    <Step1 data={data} />
+  </div>
+  <div class="wizard-step" data-step="2" style={currentStep !== 2 ? 'display:none' : ''}>
+    <Step2 data={data} />
+  </div>
+  <div class="wizard-step" data-step="3" style={currentStep !== 3 ? 'display:none' : ''}>
+    <Step3 data={data} />
+  </div>
+  <div class="wizard-step" data-step="4" style={currentStep !== 4 ? 'display:none' : ''}>
+    <FinalStep />
+  </div>
 </section>
+
+<style>
+  .wizard-step {
+    animation: fadeIn 0.4s ease-in-out;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+</style>
+
+<script>
+  // Sistema de navegación client-side del wizard
+  class WizardNavigator {
+    private currentStep: number;
+    private container: HTMLElement;
+
+    constructor() {
+      this.container = document.querySelector('.wizard-container') as HTMLElement;
+      this.currentStep = parseInt(this.container?.dataset.wizardStep || '1');
+      this.init();
+    }
+
+    init() {
+      // Escuchar eventos personalizados de navegación
+      document.addEventListener('wizard:next', (e: any) => {
+        this.goToStep(this.currentStep + 1);
+      });
+
+      document.addEventListener('wizard:prev', () => {
+        this.goToStep(this.currentStep - 1);
+      });
+
+      document.addEventListener('wizard:goto', (e: any) => {
+        this.goToStep(e.detail.step);
+      });
+    }
+
+    goToStep(step: number) {
+      const steps = document.querySelectorAll('.wizard-step');
+      const targetStep = Math.min(Math.max(step, 1), steps.length);
+
+      if (targetStep === this.currentStep) return;
+
+      // Ocultar step actual con fade out
+      const currentStepEl = document.querySelector(`[data-step="${this.currentStep}"]`) as HTMLElement;
+      if (currentStepEl) {
+        currentStepEl.style.opacity = '0';
+        currentStepEl.style.transform = 'translateY(-10px)';
+        
+        setTimeout(() => {
+          currentStepEl.style.display = 'none';
+          
+          // Mostrar nuevo step
+          const newStepEl = document.querySelector(`[data-step="${targetStep}"]`) as HTMLElement;
+          if (newStepEl) {
+            newStepEl.style.display = 'block';
+            newStepEl.style.opacity = '0';
+            newStepEl.style.transform = 'translateY(10px)';
+            
+            // Forzar reflow
+            newStepEl.offsetHeight;
+            
+            // Animar entrada
+            newStepEl.style.transition = 'opacity 0.4s ease-in-out, transform 0.4s ease-in-out';
+            newStepEl.style.opacity = '1';
+            newStepEl.style.transform = 'translateY(0)';
+          }
+          
+          this.currentStep = targetStep;
+          this.container.dataset.wizardStep = targetStep.toString();
+          
+          // Actualizar barra de progreso
+          this.updateProgress(targetStep);
+          
+          // Actualizar URL sin recargar
+          const url = new URL(window.location.href);
+          url.searchParams.set('step', targetStep.toString());
+          window.history.pushState({}, '', url);
+          
+        }, 300);
+      }
+    }
+
+    updateProgress(step: number) {
+      const progressBar = document.querySelector('.bg-slate-600.dark\\:bg-yellow-500') as HTMLElement;
+      const totalSteps = document.querySelectorAll('.wizard-step').length;
+      const progress = Math.round((step / totalSteps) * 100);
+      
+      if (progressBar) {
+        progressBar.style.width = `${progress}%`;
+      }
+
+      // Actualizar labels
+      const labels = document.querySelectorAll('ol li');
+      labels.forEach((label, index) => {
+        const stepNum = index + 1;
+        label.className = '';
+        
+        if (step === stepNum) {
+          label.className = 'font-semibold text-slate-800 dark:text-white';
+        } else if (step > stepNum) {
+          label.className = 'text-slate-500 dark:text-slate-500';
+        } else {
+          label.className = 'text-slate-400 dark:text-slate-400';
+        }
+      });
+    }
+  }
+
+  // Inicializar cuando el DOM esté listo
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => new WizardNavigator());
+  } else {
+    new WizardNavigator();
+  }
+</script>
