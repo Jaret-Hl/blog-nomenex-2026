@@ -1,0 +1,73 @@
+---
+interface Props {
+  id?: string;
+  type?: 'success' | 'error' | 'warning' | 'info';
+  dismissible?: boolean;
+}
+
+const { id = 'alert', type = 'info', dismissible = true } = Astro.props;
+
+const alertStyles = {
+  success: 'text-green-800 bg-green-50 border-green-300 dark:bg-gray-800 dark:text-green-400 dark:border-green-800',
+  error: 'text-red-800 bg-red-50 border-red-300 dark:bg-gray-800 dark:text-red-400 dark:border-red-800',
+  warning: 'text-yellow-800 bg-yellow-50 border-yellow-300 dark:bg-gray-800 dark:text-yellow-300 dark:border-yellow-800',
+  info: 'text-blue-800 bg-blue-50 border-blue-300 dark:bg-gray-800 dark:text-blue-400 dark:border-blue-800'
+};
+
+const iconPaths = {
+  success: 'M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z',
+  error: 'M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 11.793a1 1 0 1 1-1.414 1.414L10 11.414l-2.293 2.293a1 1 0 0 1-1.414-1.414L8.586 10 6.293 7.707a1 1 0 0 1 1.414-1.414L10 8.586l2.293-2.293a1 1 0 0 1 1.414 1.414L11.414 10l2.293 2.293Z',
+  warning: 'M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM10 15a1 1 0 1 1 0-2 1 1 0 0 1 0 2Zm1-4a1 1 0 0 1-2 0V6a1 1 0 0 1 2 0v5Z',
+  info: 'M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z'
+};
+---
+
+<div
+  id={id}
+  class={`hidden items-center p-4 mb-4 text-sm border rounded-lg ${alertStyles[type]} transition-all duration-300`}
+  role="alert"
+>
+  <svg class="flex-shrink-0 inline w-4 h-4 me-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+    <path d={iconPaths[type]} />
+  </svg>
+  <span class="sr-only">{type === 'success' ? 'Éxito' : type === 'error' ? 'Error' : type === 'warning' ? 'Advertencia' : 'Info'}</span>
+  <div class="flex-1" id={`${id}-message`}>
+    <slot />
+  </div>
+  {dismissible && (
+    <button
+      type="button"
+      class={`ms-auto -mx-1.5 -my-1.5 rounded-lg focus:ring-2 p-1.5 inline-flex items-center justify-center h-8 w-8 ${
+        type === 'success' ? 'bg-green-50 text-green-500 focus:ring-green-400 hover:bg-green-200 dark:bg-gray-800 dark:text-green-400 dark:hover:bg-gray-700' :
+        type === 'error' ? 'bg-red-50 text-red-500 focus:ring-red-400 hover:bg-red-200 dark:bg-gray-800 dark:text-red-400 dark:hover:bg-gray-700' :
+        type === 'warning' ? 'bg-yellow-50 text-yellow-500 focus:ring-yellow-400 hover:bg-yellow-200 dark:bg-gray-800 dark:text-yellow-300 dark:hover:bg-gray-700' :
+        'bg-blue-50 text-blue-500 focus:ring-blue-400 hover:bg-blue-200 dark:bg-gray-800 dark:text-blue-400 dark:hover:bg-gray-700'
+      }`}
+      data-dismiss-target={`#${id}`}
+      aria-label="Close"
+    >
+      <span class="sr-only">Cerrar</span>
+      <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+      </svg>
+    </button>
+  )}
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const dismissButtons = document.querySelectorAll('[data-dismiss-target]');
+    
+    dismissButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        const targetId = button.getAttribute('data-dismiss-target');
+        // const target = document.querySelector(targetId);
+        const target = targetId ? document.getElementById(targetId.substring(1)) : null;
+        if (target) {
+          target.classList.add('hidden');
+          target.classList.remove('flex');
+        }
+      });
+    });
+  });
+</script>
