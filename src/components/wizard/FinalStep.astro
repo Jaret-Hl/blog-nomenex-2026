@@ -269,12 +269,123 @@
 
 <script>
   import { actions } from "astro:actions";
-  // const { data } = Astro.props;
+
+  // Interfaces para tipar los datos del wizard
+  interface WizardData {
+    company?: {
+      employees: number;
+      locations: string;
+    };
+    packageId?: string;
+    biometric?: {
+      bioRequired: boolean;
+      bioCount?: number;
+      bioType?: string;
+    };
+    currentStep?: number;
+    completedSteps?: number[];
+  }
+
+  interface ContactData {
+    userName: string;
+    userCompany: string;
+    userEmail: string;
+    userPhone: string;
+  }
+
+  interface QuoteData extends WizardData {
+    contact?: ContactData;
+    timestamp?: string;
+  }
 
   const sendEmail = document.getElementById("sendEmailBtn") as HTMLButtonElement;
 
+  // Función helper para obtener cookies de forma segura
+  function getCookie(name: string): string | null {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) {
+      return parts.pop()?.split(';').shift() || null;
+    }
+    return null;
+  }
+
+  // Función para obtener todos los datos del wizard desde la cookie principal
+  function getWizardData(): WizardData {
+    try {
+      const cookieValue = getCookie('wizard-data');
+      if (!cookieValue) {
+        console.warn('Cookie "wizard-data" no encontrada');
+        return {};
+      }
+      const decodedValue = decodeURIComponent(cookieValue);
+      return JSON.parse(decodedValue) as WizardData;
+    } catch (error) {
+      console.error('Error al parsear wizard-data:', error);
+      return {};
+    }
+  }
+
+  // Función para estructurar los datos de cada step
+  function organizeDataBySteps(wizardData: WizardData) {
+    return {
+      step1: {
+        employees: wizardData.company?.employees || null,
+        locations: wizardData.company?.locations || null,
+      },
+      step2: {
+        packageId: wizardData.packageId || null,
+      },
+      step3: {
+        bioRequired: wizardData.biometric?.bioRequired ?? null,
+        bioCount: wizardData.biometric?.bioCount || null,
+        bioType: wizardData.biometric?.bioType || null,
+      },
+    };
+  }
+
+  // Función para obtener nombre legible del tipo de biométrico
+  function getBiometricTypeName(bioType: string | null | undefined): string {
+    if (!bioType) return 'No especificado';
+    const types: Record<string, string> = {
+      'basic': 'Biométrico básico',
+      'advanced': 'Biométrico avanzado',
+      'terminal': 'Terminal con pantalla',
+    };
+    return types[bioType] || bioType;
+  }
+
   sendEmail.addEventListener("click", (event) => {
     event.preventDefault();
-    console.log('Aquí somos la verdura del caldo')
+    
+    // Obtener todos los datos del wizard
+    const wizardData = getWizardData();
+    
+    // Organizar datos por steps
+    const stepData = organizeDataBySteps(wizardData);
+    
+    // Obtener datos del formulario de contacto
+    const contactForm = document.getElementById("contactForm") as HTMLFormElement;
+    const formData = new FormData(contactForm);
+    
+    const contactData: ContactData = {
+      userName: formData.get('userName') as string,
+      userCompany: formData.get('userCompany') as string,
+      userEmail: formData.get('userEmail') as string,
+      userPhone: formData.get('userPhone') as string,
+    };
+    
+    // Crear objeto completo para envío de email
+    const quoteData: QuoteData = {
+      ...wizardData,
+      contact: contactData,
+      timestamp: new Date().toISOString(),
+    };
+    
+    // Logs organizados para debugging y desarrollo
+    console.log("Datos del Wizard organizados por steps:", stepData);
+
+    // Aquí puedes agregar el envío real del email
+    // await actions.sendQuoteEmail({ quoteData });
   }); 
 </script>

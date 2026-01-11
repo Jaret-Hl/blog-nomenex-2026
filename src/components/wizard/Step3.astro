@@ -1,10 +1,7 @@
 ---
-// import type { WizardData } from "../../types/wizard";
-// const { data } = Astro.props as { data: WizardData };
 const { data } = Astro.props;
 ---
 
-<!-- integrando paquetes -->
 <form id="step3Form" class="pt-4 max-w-3xl mx-auto">
   <input type="hidden" name="step" value="3" />
   <div class="space-y-4">
@@ -16,16 +13,23 @@ const { data } = Astro.props;
     <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
       <div>
         <label class="flex items-center gap-3">
-          <input type="radio" name="bioNeeded" value="yes" id="bioNeededYes" />
+          <input
+            type="radio"
+            name="bioRequired"
+            value="true"
+            id="bioNeededYes"
+            checked={data.biometric?.bioRequired === true}
+          />
           <span>Sí, quiero instalar dispositivos</span>
         </label>
         <label class="flex items-center gap-3 mt-3">
           <input
             type="radio"
-            name="bioNeeded"
-            value="no"
             id="bioNeededNo"
-            checked
+            name="bioRequired"
+            value="false"
+            checked={data.biometric?.bioRequired === false ||
+              !data.biometric?.bioRequired}
           />
           <span>No, solo software</span>
         </label>
@@ -35,30 +39,45 @@ const { data } = Astro.props;
           <label class="block text-sm">Número de dispositivos</label>
           <input
             id="bioCount"
+            name="bioCount"
             type="number"
-            min="0"
-            value="1"
+            min="1"
+            value={data.biometric?.bioCount ?? 1}
             class="mt-1 block w-28 rounded-md border px-3 py-2"
           />
 
           <label class="block text-sm mt-3">Tipo de dispositivo</label>
           <select
             id="bioType"
-            class="mt-1 block w-48 rounded-md border px-3 py-2"
+            name="bioType"
+            class="w-full rounded-md border-2 border-gray-200 dark:border-gray-600 px-3 py-2 text-sm"
           >
-            <option value="basic">Biométrico básico</option>
-            <!-- <option value="advanced">Biométrico avanzado</option>
-                        <option value="terminal">
-                          Terminal (con pantalla)
-                        </option> -->
+            <option
+              value="
+            basic"
+              selected={data.biometric?.bioType === "basic" ||
+                !data.biometric?.bioType}
+            >
+              Biométrico básico
+            </option>
+            <option
+              value="advanced"
+              selected={data.biometric?.bioType === "advanced"}
+            >
+              Biométrico avanzado
+            </option>
           </select>
         </div>
       </div>
 
       <div>
-        <div class="bg-gray-50 dark:bg-gray-800 p-4 rounded-md border border-2 border-dashed border-slate-200 dark:border-slate-700 mb-4">
+        <div
+          class="bg-gray-50 dark:bg-gray-800 p-4 rounded-md border border-2 border-dashed border-slate-200 dark:border-slate-700 mb-4"
+        >
           <div class="font-medium">Incluye</div>
-          <ul class="list-disc ml-5 mt-2 text-sm text-slate-600 space-y-1 dark:text-white/70">
+          <ul
+            class="list-disc ml-5 mt-2 text-sm text-slate-600 space-y-1 dark:text-white/70"
+          >
             <li>Instalación en sitio</li>
             <li>Configuración y pruebas</li>
             <li>Capacitación inicial</li>
@@ -68,8 +87,8 @@ const { data } = Astro.props;
     </div>
   </div>
   <div class="flex justify-between">
-    <button 
-      type="button" 
+    <button
+      type="button"
       id="backBtn"
       class="px-4 py-2 border rounded-md text-sm hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
     >
@@ -84,56 +103,137 @@ const { data } = Astro.props;
       Continuar
     </button>
   </div>
-</form>
 
-<script>
-  import { actions } from "astro:actions";
+  <script>
+    import { actions } from "astro:actions";
 
-  const form = document.querySelector("#step3Form") as HTMLFormElement;
-  const backBtn = document.getElementById("backBtn") as HTMLButtonElement;
-  const submitBtn = document.getElementById("submitBtn") as HTMLButtonElement;
-  const bioNeededYes = document.getElementById("bioNeededYes") as HTMLInputElement;
-  const bioNeededNo = document.getElementById("bioNeededNo") as HTMLInputElement;
-  const bioDetails = document.getElementById("bioDetails") as HTMLDivElement;
+    const form = document.querySelector("#step3Form") as HTMLFormElement;
+    const backBtn = document.getElementById("backBtn") as HTMLButtonElement;
+    const submitBtn = document.getElementById("submitBtn") as HTMLButtonElement;
+    const bioNeededYes = document.getElementById(
+      "bioNeededYes"
+    ) as HTMLInputElement;
+    const bioNeededNo = document.getElementById(
+      "bioNeededNo"
+    ) as HTMLInputElement;
+    const bioDetails = document.getElementById("bioDetails") as HTMLDivElement;
+    const bioCount = document.getElementById("bioCount") as HTMLInputElement;
+    const bioType = document.getElementById("bioType") as HTMLSelectElement;
 
-  // Botón volver sin recargar
-  backBtn.addEventListener("click", () => {
-    document.dispatchEvent(new CustomEvent('wizard:prev'));
-  });
-
-  // Mostrar/ocultar detalles biométricos
-  [bioNeededYes, bioNeededNo].forEach(radio => {
-    radio.addEventListener("change", () => {
+    // Inicializar visibilidad de bioDetails según datos guardados
+    function initializeBioDetails() {
       if (bioNeededYes.checked) {
         bioDetails.classList.remove("hidden");
       } else {
         bioDetails.classList.add("hidden");
       }
-    });
-  });
-
-  form.addEventListener("submit", async (e) => {
-    e.preventDefault();
-
-    submitBtn.disabled = true;
-    submitBtn.textContent = "Guardando...";
-
-    try {
-      const formData = new FormData(form);
-      const response = await actions.wizardStep(formData);
-
-      if (response.data?.success) {
-        // Navegar al siguiente step sin recargar
-        document.dispatchEvent(new CustomEvent('wizard:next'));
-      } else {
-        alert("Ocurrió un error. Por favor, intenta de nuevo.");
-      }
-    } catch (error) {
-      console.error("Error submitting form:", error);
-      alert("Ocurrió un error. Por favor, intenta de nuevo.");
-    } finally {
-      submitBtn.disabled = false;
-      submitBtn.textContent = "Continuar";
     }
-  });
-</script>
+
+    // Ejecutar al cargar
+    initializeBioDetails();
+
+    // Botón volver sin recargar
+    backBtn.addEventListener("click", () => {
+      document.dispatchEvent(new CustomEvent("wizard:prev"));
+    });
+
+    // Mostrar/ocultar detalles biométricos para ambos radios
+    bioNeededYes.addEventListener("change", () => {
+      if (bioNeededYes.checked) {
+        bioDetails.classList.remove("hidden");
+      }
+    });
+
+    bioNeededNo.addEventListener("change", () => {
+      if (bioNeededNo.checked) {
+        bioDetails.classList.add("hidden");
+      }
+    });
+
+    // Validación del formulario
+    function validateForm(): boolean {
+      // Validar que se haya seleccionado una opción
+      if (!bioNeededYes.checked && !bioNeededNo.checked) {
+        alert(
+          "Por favor, selecciona si requieres instalación de dispositivos."
+        );
+        return false;
+      }
+
+      // Si requiere biométricos, validar campos adicionales
+      if (bioNeededYes.checked) {
+        const countValue = parseInt(bioCount.value);
+
+        if (!bioCount.value || countValue < 1) {
+          alert(
+            "Por favor, ingresa un número válido de dispositivos (mínimo 1)."
+          );
+          bioCount.focus();
+          return false;
+        }
+
+        if (countValue > 100) {
+          alert(
+            "El número máximo de dispositivos es 100. Para cantidades mayores, contacta a ventas."
+          );
+          bioCount.focus();
+          return false;
+        }
+
+        if (!bioType.value) {
+          alert("Por favor, selecciona el tipo de dispositivo.");
+          bioType.focus();
+          return false;
+        }
+      }
+
+      return true;
+    }
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      if (!validateForm()) {
+        return;
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = "Guardando...";
+
+      try {
+        const formData = new FormData(form);
+
+        // Logging para debug
+        console.log("FormData antes de enviar:");
+        console.log("- bioRequired:", formData.get("bioRequired"));
+        console.log("- bioCount:", formData.get("bioCount"));
+        console.log("- bioType:", formData.get("bioType"));
+
+        // Asegurar que se envíen los valores correctos
+        if (bioNeededNo.checked) {
+          formData.set("bioRequired", "false");
+          formData.set("bioCount", "0");
+          formData.set("bioType", "");
+        } else {
+          formData.set("bioRequired", "true");
+          // bioCount y bioType ya tienen sus valores del formulario
+        }
+
+        const response = await actions.wizardStep(formData);
+
+        console.log("Respuesta del servidor:", response);
+
+        if (response.data?.success) {
+          console.log("Datos guardados:", response.data.data);
+          document.dispatchEvent(new CustomEvent("wizard:next"));
+        }
+      } catch (error) {
+        console.error("Error al enviar el formulario:", error);
+        alert("Ocurrió un error inesperado. Por favor, intenta de nuevo.");
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Continuar";
+      }
+    });
+  </script>
+</form>
