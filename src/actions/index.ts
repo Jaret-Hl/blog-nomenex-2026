@@ -22,7 +22,7 @@ export const server = {
 
       switch (step) {
         case 1:
-          if ('employees' in payload && 'locations' in payload) {
+          if ("employees" in payload && "locations" in payload) {
             WizardStorage.update(cookies, {
               company: {
                 employees: payload.employees!,
@@ -34,7 +34,7 @@ export const server = {
           break;
 
         case 2:
-          if ('packageId' in payload) {
+          if ("packageId" in payload) {
             WizardStorage.update(cookies, {
               packageId: payload.packageId,
             });
@@ -43,11 +43,20 @@ export const server = {
           break;
 
         case 3:
-          if ('bioRequired' in payload) {
+          if ("bioRequired" in payload) {
+            const bioRequired = payload.bioRequired as boolean;
+
+            console.log("Step 3 - Datos recibidos:", {
+              bioRequired: payload.bioRequired,
+              bioCount: payload.bioCount,
+              bioType: payload.bioType,
+            });
+
             WizardStorage.update(cookies, {
               biometric: {
-                bioRequired: payload.bioRequired!,
-                bioCount: payload.bioCount,
+                bioRequired: bioRequired,
+                bioCount: bioRequired ? payload.bioCount || 0 : 0,
+                bioType: bioRequired ? payload.bioType || "" : "",
               },
             });
             WizardStorage.markStepComplete(cookies, 3);
@@ -55,10 +64,13 @@ export const server = {
           break;
       }
 
-      return { 
+      const updatedData = WizardStorage.get(cookies);
+      console.log("Datos guardados en cookie:", updatedData);
+
+      return {
         success: true,
         nextStep: step + 1,
-        data: WizardStorage.get(cookies),
+        data: updatedData,
       };
     },
   }),
