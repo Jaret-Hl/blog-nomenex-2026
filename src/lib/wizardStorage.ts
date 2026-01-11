@@ -9,6 +9,7 @@ export interface WizardData {
   biometric?: {
     bioRequired: boolean;
     bioCount?: number;
+    bioType?: string;
   };
   currentStep?: number;
   completedSteps?: number[];
