@@ -11,8 +11,12 @@ export const WizardStepSchema = z.object({
   packageId: z.string().min(1, 'Selecciona un paquete').optional(),
 
   // STEP 3
-  bioRequired: z.coerce.boolean().optional(),
-  bioCount: z.coerce.number().min(0, 'El número debe ser positivo').optional(),
+  bioRequired: z.string()
+    .nullable()
+    .optional()
+    .transform(val => val === 'true'),
+  bioCount: z.coerce.number().min(0, 'El número debe ser positivo').optional().nullable(),
+  bioType: z.string().optional().nullable(),
 }).superRefine((data, ctx) => {
   switch (data.step) {
     case 1:
@@ -43,14 +47,15 @@ export const WizardStepSchema = z.object({
       break;
 
     case 3:
-      if (data.bioRequired === undefined) {
+      // Solo validar bioRequired en el step 3
+      if (data.bioRequired === undefined || data.bioRequired === null) {
         ctx.addIssue({
           path: ['bioRequired'],
           message: 'Indica si requieres biométricos',
           code: z.ZodIssueCode.custom,
         });
       }
-      if (data.bioRequired && (!data.bioCount || data.bioCount < 1)) {
+      if (data.bioRequired === true && (!data.bioCount || data.bioCount < 1)) {
         ctx.addIssue({
           path: ['bioCount'],
           message: 'Indica el número de dispositivos biométricos',
