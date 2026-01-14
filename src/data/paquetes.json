@@ -41,11 +41,11 @@
       "tipo_prestaciones": "De ley y caja de ahorro, fondo de ahorro y despensa"
     },
     "tabuladores": [
-      { "min": 1, "max": 5, "precio": 2000 },
-      { "min": 6, "max": 25, "precio": 2250 },
-      { "min": 26, "max": 50, "precio": 2235 },
-      { "min": 51, "max": 75, "precio": 2220 },
-      { "min": 76, "max": 100, "precio": 2210 }
+      { "min": 1, "max": 5, "precio": 2000, "tipo": "mensual" },
+      { "min": 6, "max": 25, "precio": 250, "tipo": "unitario" },
+      { "min": 26, "max": 50, "precio": 235, "tipo": "unitario" },
+      { "min": 51, "max": 75, "precio": 220, "tipo": "unitario" },
+      { "min": 76, "max": 100, "precio": 210, "tipo": "unitario" }
     ],
     "addonsIncluidos": []
   },
@@ -91,11 +91,11 @@
       "tipo_prestaciones": "De ley y superiores"
     },
     "tabuladores": [
-      { "min": 1, "max": 5, "precio": 2200 },
-      { "min": 6, "max": 25, "precio": 2480 },
-      { "min": 26, "max": 50, "precio": 2465 },
-      { "min": 51, "max": 75, "precio": 2450 },
-      { "min": 76, "max": 100, "precio": 2440 }
+      { "min": 1, "max": 5, "precio": 2200, "tipo": "mensual" },
+      { "min": 6, "max": 25, "precio": 280, "tipo": "unitario" },
+      { "min": 26, "max": 50, "precio": 265, "tipo": "unitario" },
+      { "min": 51, "max": 75, "precio": 250, "tipo": "unitario" },
+      { "min": 76, "max": 100, "precio": 240, "tipo": "unitario" }
     ],
     "addonsIncluidos": ["gestion_asistencia"]
   },
@@ -141,11 +141,11 @@
       "tipo_prestaciones": "De ley y superiores"
     },
     "tabuladores": [
-      { "min": 1, "max": 5, "precio": 2400 },
-      { "min": 6, "max": 25, "precio": 2720 },
-      { "min": 26, "max": 50, "precio": 2705 },
-      { "min": 51, "max": 75, "precio": 2690 },
-      { "min": 76, "max": 100, "precio": 2680 }
+      { "min": 1, "max": 5, "precio": 2400, "tipo": "mensual" },
+      { "min": 6, "max": 25, "precio": 320, "tipo": "unitario" },
+      { "min": 26, "max": 50, "precio": 305, "tipo": "unitario" },
+      { "min": 51, "max": 75, "precio": 290, "tipo": "unitario" },
+      { "min": 76, "max": 100, "precio": 280, "tipo": "unitario" }
     ],
     "addonsIncluidos": ["gestion_asistencia"]
   }
