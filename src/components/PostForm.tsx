@@ -24,7 +24,7 @@ export default function PostForm() {
     };
     
     // Enviar datos sanitizados
-    console.log('Datos sanitizados:', sanitizedData);
+    
     // Aquí puedes hacer el POST a tu API
   };
 
