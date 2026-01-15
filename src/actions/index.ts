@@ -1,7 +1,38 @@
 // src/actions/index.ts
 import { defineAction, ActionError } from "astro:actions";
 import { WizardStepSchema } from "./schemas/wizardSchemas";
-import { WizardStorage } from "../lib/wizardStorage";
+import { WizardStorage, type WizardData } from "../lib/wizardStorage";
+import { calculateQuote } from "@/lib/pricing/calculateQuote";
+import type { WizardState } from "@/lib/pricing/types";
+
+// Función para transformar WizardData a WizardState
+function transformToWizardState(data: WizardData): WizardState | null {
+  // Validar que tenemos todos los datos necesarios
+  if (!data.company?.employees || !data.company?.locations) {
+    return null;
+  }
+  if (!data.packageId) {
+    return null;
+  }
+  if (data.biometric?.bioRequired === undefined) {
+    return null;
+  }
+
+  return {
+    step1: {
+      employees: data.company.employees,
+      locations: data.company.locations,
+    },
+    step2: {
+      packageId: data.packageId,
+    },
+    step3: {
+      bioRequired: data.biometric.bioRequired,
+      bioCount: data.biometric.bioCount || 0,
+      bioType: (data.biometric.bioType as "basic" | "advanced" | "terminal") || "basic",
+    },
+  };
+}
 
 export const server = {
   wizardStep: defineAction({
@@ -46,12 +77,6 @@ export const server = {
           if ("bioRequired" in payload) {
             const bioRequired = payload.bioRequired as boolean;
 
-            console.log("Step 3 - Datos recibidos:", {
-              bioRequired: payload.bioRequired,
-              bioCount: payload.bioCount,
-              bioType: payload.bioType,
-            });
-
             WizardStorage.update(cookies, {
               biometric: {
                 bioRequired: bioRequired,
@@ -65,7 +90,15 @@ export const server = {
       }
 
       const updatedData = WizardStorage.get(cookies);
-      console.log("Datos guardados en cookie:", updatedData);
+      
+      // Calcular cotización si tenemos todos los datos
+      const wizardState = transformToWizardState(updatedData);
+      if (wizardState) {
+        const quote = calculateQuote(wizardState);
+        console.log("Cotización calculada:", quote);
+      } else {
+        console.log("Datos incompletos para calcular cotización");
+      }
 
       return {
         success: true,
