@@ -53,18 +53,11 @@ const { data } = Astro.props;
             class="w-full rounded-md border-2 border-gray-200 dark:border-gray-600 px-3 py-2 text-sm"
           >
             <option
-              value="
-            basic"
+              value="basic"
               selected={data.biometric?.bioType === "basic" ||
                 !data.biometric?.bioType}
             >
               Biométrico básico
-            </option>
-            <option
-              value="advanced"
-              selected={data.biometric?.bioType === "advanced"}
-            >
-              Biométrico avanzado
             </option>
           </select>
         </div>
@@ -204,27 +197,25 @@ const { data } = Astro.props;
         const formData = new FormData(form);
 
         // Logging para debug
-        console.log("FormData antes de enviar:");
-        console.log("- bioRequired:", formData.get("bioRequired"));
-        console.log("- bioCount:", formData.get("bioCount"));
-        console.log("- bioType:", formData.get("bioType"));
 
-        // Asegurar que se envíen los valores correctos
+        // Normalizar valores según la selección
         if (bioNeededNo.checked) {
           formData.set("bioRequired", "false");
-          formData.set("bioCount", "0");
-          formData.set("bioType", "");
+          formData.delete("bioCount");
+          formData.delete("bioType");
         } else {
           formData.set("bioRequired", "true");
-          // bioCount y bioType ya tienen sus valores del formulario
+          // Asegurar que bioCount sea un número válido
+          const count = parseInt(bioCount.value) || 1;
+          formData.set("bioCount", count.toString());
+          // Asegurar que bioType tenga un valor válido
+          const type = bioType.value || "basic";
+          formData.set("bioType", type);
         }
 
         const response = await actions.wizardStep(formData);
 
-        console.log("Respuesta del servidor:", response);
-
         if (response.data?.success) {
-          console.log("Datos guardados:", response.data.data);
           document.dispatchEvent(new CustomEvent("wizard:next"));
         }
       } catch (error) {
