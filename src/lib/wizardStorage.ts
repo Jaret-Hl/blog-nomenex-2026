@@ -96,8 +96,8 @@ export class WizardStorage {
           errors.push('El número de empleados es requerido');
         } else if (data.company.employees < 1) {
           errors.push('Debes indicar al menos 1 empleado');
-        } else if (data.company.employees > 1000) {
-          errors.push('El máximo es 1000 empleados');
+        } else if (data.company.employees > 100) {
+          errors.push('El máximo es 100 empleados');
         }
         
         if (!data.company?.locations) {
