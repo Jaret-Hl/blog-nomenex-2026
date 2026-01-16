@@ -1,0 +1,92 @@
+---
+const { open = false } = Astro.props;
+---
+
+<div
+    id="booking-modal"
+    class={`fixed inset-0 z-50 flex items-center justify-center p-4 ${open ? "" : "hidden"}`}
+>
+    <!-- Overlay -->
+    <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" id="modal-overlay"></div>
+
+    <!-- Modal -->
+    <div class="relative mx-auto w-full max-w-4xl rounded-2xl bg-white dark:bg-gray-800 shadow-2xl transform transition-all">
+    <!-- Header -->
+    <div class="flex items-center justify-between border-b border-gray-200 dark:border-gray-700 px-10 py-8">
+      <div>
+        <h2 class="text-2xl font-bold text-gray-900 dark:text-white">
+          Agendar sesión
+        </h2>
+        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+          Selecciona fecha y horario para tu asesoría
+        </p>
+      </div>
+      <button 
+        id="close-modal" 
+        class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
+        aria-label="Cerrar modal"
+      >
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- Body -->
+    <div class="px-8 py-6 space-y-6">
+      <!-- Fecha -->
+      <div>
+        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
+          📅 Fecha de la sesión
+        </label>
+        <input
+          type="date"
+          id="booking-date"
+          min=""
+          class="w-full rounded-lg border-2 border-gray-300 dark:border-gray-600 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-gray-200 transition-all"
+        />
+      </div>
+
+      <!-- Horarios -->
+      <div>
+        <p class="text-sm font-semibold text-gray-700 dark:text-gray-200 mb-3 flex items-center gap-2">
+          🕐 Horarios disponibles
+        </p>
+
+        <div
+          id="slots-container"
+          class="grid grid-cols-4 gap-3"
+        >
+          <p class="col-span-4 text-center text-gray-400 py-8">
+            Selecciona una fecha para ver horarios disponibles
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="flex justify-end gap-3 border-t border-gray-200 dark:border-gray-700 px-8 py-6 bg-gray-50 dark:bg-gray-900/50 rounded-b-2xl">
+      <button
+        id="cancel-booking"
+        class="rounded-lg border-2 border-gray-300 dark:border-gray-600 px-6 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+      >
+        Cancelar
+      </button>
+
+      <button
+        id="confirm-booking"
+        disabled
+        class="rounded-lg bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-2.5 text-sm font-medium text-white hover:from-blue-700 hover:to-blue-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg shadow-blue-500/30 disabled:shadow-none"
+      >
+        Confirmar reserva
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  import { BookingModalManager } from '@/utils/bookingModal';
+
+  const modalManager = new BookingModalManager();
+  modalManager.init();
+</script>

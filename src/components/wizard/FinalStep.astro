@@ -15,8 +15,6 @@ import BookingModal from '../BookingModal.astro';
     <ValidationCard />
     <ContactForm />
     <TrustMessage />
-    
-    
   </div>
 </div>
 
@@ -24,14 +22,52 @@ import BookingModal from '../BookingModal.astro';
 
 <script>
   import { handleQuoteSubmit } from '../../lib/handleQuoteSubmit';
+  import { sanitizeInput } from '../../utils/sanitize';
 
   const sendEmail = document.getElementById("sendEmailBtn") as HTMLButtonElement;
-  sendEmail.addEventListener("click", handleQuoteSubmit);
+  sendEmail.addEventListener("click", async (e) => {
+    const contactForm = document.getElementById("contactForm") as HTMLFormElement;
+    if (contactForm.checkValidity()) {
+      sendEmail.disabled = true;
+      sendEmail.textContent = 'Enviando...';
+      try {
+        await handleQuoteSubmit(e);
+      } finally {
+        sendEmail.disabled = false;
+        sendEmail.textContent = 'Enviar Cotización';
+      }
+    } else {
+      contactForm.reportValidity();
+    }
+  });
 
   // Abrir modal de reserva
   const openBookingBtn = document.getElementById("open-booking-modal");
   openBookingBtn?.addEventListener("click", () => {
-    // 
-    window.openBookingModal();
+    const contactForm = document.getElementById("contactForm") as HTMLFormElement;
+    
+    // VALIDAR FORMULARIO ANTES DE ABRIR MODAL
+    if (contactForm.checkValidity()) {
+      // Obtener datos del formulario con los IDs correctos
+      const nameInput = document.getElementById("userName") as HTMLInputElement;
+      const emailInput = document.getElementById("userEmail") as HTMLInputElement;
+
+      const clientName = sanitizeInput.name(nameInput?.value || '');
+      const clientEmail = sanitizeInput.email(emailInput?.value || '');
+
+      // Validar que los datos existan después de sanitizar
+      if (!clientName || !clientEmail) {
+        alert('Por favor completa tu nombre y email correctamente');
+        return;
+      }
+
+      // Pasar datos al modal
+      window.openBookingModal({
+        name: clientName,
+        email: clientEmail
+      });
+    } else {
+      contactForm.reportValidity();
+    }
   });
 </script>
