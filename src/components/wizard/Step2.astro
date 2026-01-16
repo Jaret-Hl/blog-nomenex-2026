@@ -26,8 +26,8 @@ const { data } = Astro.props;
     </div>
     <div class="flex justify-between">
       <!-- VOLVER -->
-      <button 
-        type="button" 
+      <button
+        type="button"
         id="backBtn"
         class="px-4 py-2 border rounded-md text-sm hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
       >
@@ -48,6 +48,7 @@ const { data } = Astro.props;
 
 <script>
   import { actions } from "astro:actions";
+  import { AlertManager } from "../../lib/alertUtils";
 
   const form = document.querySelector("#step2Form") as HTMLFormElement;
   const submitBtn = document.getElementById("submitBtn") as HTMLButtonElement;
@@ -56,7 +57,7 @@ const { data } = Astro.props;
 
   // Botón volver sin recargar
   backBtn.addEventListener("click", () => {
-    document.dispatchEvent(new CustomEvent('wizard:prev'));
+    document.dispatchEvent(new CustomEvent("wizard:prev"));
   });
 
   paqueteCards.forEach((card) => {
@@ -101,7 +102,10 @@ const { data } = Astro.props;
       'input[name="packageId"]:checked'
     ) as HTMLInputElement;
     if (!selectedPackage) {
-      alert("Por favor, selecciona un paquete para continuar.");
+      window.showAlert(
+        "Por favor, selecciona un paquete para continuar.",
+        "error"
+      );
       return;
     }
 
@@ -112,18 +116,29 @@ const { data } = Astro.props;
       const formData = new FormData(form);
       const response = await actions.wizardStep(formData);
 
+      if (response.error) {
+        const errorMessage =
+          response.error.message || "Error al guardar el paquete";
+        window.showAlert(errorMessage, "error");
+        return;
+      }
+
       if (response.data?.success) {
-        // Navegar al siguiente step sin recargar
-        document.dispatchEvent(new CustomEvent('wizard:next'));
-      } else {
-        alert(
-          "Ocurrió un error al guardar tu selección. Por favor, intenta de nuevo."
+        window.showAlert(
+          "✓ Paquete seleccionado correctamente",
+          "success",
+          1500
         );
+
+        setTimeout(() => {
+          document.dispatchEvent(new CustomEvent("wizard:next"));
+        }, 1500);
       }
     } catch (error) {
       console.error("Error submitting form:", error);
-      alert(
-        "Ocurrió un error al guardar tu selección. Por favor, intenta de nuevo."
+      window.showAlert(
+        "Error inesperado. Por favor intenta de nuevo.",
+        "error"
       );
     } finally {
       submitBtn.disabled = false;

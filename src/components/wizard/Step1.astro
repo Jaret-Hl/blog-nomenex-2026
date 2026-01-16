@@ -1,16 +1,10 @@
 ---  
 import { actions } from 'astro:actions';
-import Alert from '../ui/Alert.astro';
 const { data } = Astro.props;
 ---
 
 <form class="pt-4 max-w-3xl mx-auto" id="step1Form">
   <input type="hidden" name="step" value="1" />
-
-  <!-- Alertas -->
-  <Alert id="successAlert" type="success" />
-  <Alert id="errorAlert" type="error" />
-  <Alert id="warningAlert" type="warning" />
 
   <div class="space-y-4">
     <!-- Header compacto -->
@@ -123,12 +117,10 @@ const { data } = Astro.props;
       slider.value = numberInput.value;
     }
     AlertManager.clearFieldError('employeeCount');
-    AlertManager.hide('errorAlert');
   });
 
   locationSelect.addEventListener('change', () => {
     AlertManager.clearFieldError('locations');
-    AlertManager.hide('errorAlert');
   });
 
   slider.addEventListener('input', () => {
@@ -141,8 +133,6 @@ const { data } = Astro.props;
     
     // Limpiar errores previos
     AlertManager.clearAllFieldErrors('step1Form');
-    AlertManager.hide('errorAlert');
-    AlertManager.hide('successAlert');
     
     // Validación del lado del cliente
     const employees = parseInt(numberInput.value);
@@ -153,8 +143,8 @@ const { data } = Astro.props;
     if (!employees || employees < 1) {
       AlertManager.showFieldError('employeeCount', 'Debes indicar al menos 1 empleado');
       hasErrors = true;
-    } else if (employees > 1000) {
-      AlertManager.showFieldError('employeeCount', 'Máximo 1000 empleados');
+    } else if (employees > 100) {
+      AlertManager.showFieldError('employeeCount', 'Máximo 100 empleados');
       hasErrors = true;
     }
 
@@ -164,7 +154,8 @@ const { data } = Astro.props;
     }
 
     if (hasErrors) {
-      AlertManager.showError('errorAlert', 'Por favor completa todos los campos requeridos');
+      // Usar el alert global
+      window.showAlert('Por favor completa todos los campos requeridos', 'error');
       return;
     }
 
@@ -177,7 +168,8 @@ const { data } = Astro.props;
 
       if (response.error) {
         const errorMessage = response.error.message || 'Error al guardar los datos';
-        AlertManager.showError('errorAlert', errorMessage);
+        // Usar el alert global
+        window.showAlert(errorMessage, 'error');
         
         // Mostrar errores específicos de campos si existen
         const errorData = response.error as any;
@@ -192,7 +184,8 @@ const { data } = Astro.props;
       }
 
       if (response.data?.success) {
-        AlertManager.showSuccess('successAlert', '✓ Datos guardados correctamente', 1500);
+        // Usar el alert global
+        window.showAlert('✓ Datos guardados correctamente', 'success', 1500);
         
         // Navegar al siguiente step sin recargar la página
         setTimeout(() => {
@@ -200,7 +193,8 @@ const { data } = Astro.props;
         }, 1500);
       }
     } catch (error) {
-      AlertManager.showError('errorAlert', 'Error inesperado. Por favor intenta de nuevo.');
+      // Usar el alert global
+      window.showAlert('Error inesperado. Por favor intenta de nuevo.', 'error');
       console.error('Error:', error);
     } finally {
       submitBtn.disabled = false;
