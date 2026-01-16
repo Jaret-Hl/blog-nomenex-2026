@@ -3,9 +3,19 @@ interface Props {
   id?: string;
   type?: 'success' | 'error' | 'warning' | 'info';
   dismissible?: boolean;
+  position?: 'top-right' | 'bottom-right' | 'top-left' | 'bottom-left';
+  autoClose?: boolean;
+  duration?: number;
 }
 
-const { id = 'alert', type = 'info', dismissible = true } = Astro.props;
+const { 
+  id = 'alert', 
+  type = 'info', 
+  dismissible = true,
+  position = 'bottom-right',
+  autoClose = true,
+  duration = 5000
+} = Astro.props;
 
 const alertStyles = {
   success: 'text-green-800 bg-green-50 border-green-300 dark:bg-gray-800 dark:text-green-400 dark:border-green-800',
@@ -20,12 +30,21 @@ const iconPaths = {
   warning: 'M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM10 15a1 1 0 1 1 0-2 1 1 0 0 1 0 2Zm1-4a1 1 0 0 1-2 0V6a1 1 0 0 1 2 0v5Z',
   info: 'M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z'
 };
+
+const positionStyles = {
+  'top-right': 'top-4 right-4',
+  'bottom-right': 'bottom-4 right-4',
+  'top-left': 'top-4 left-4',
+  'bottom-left': 'bottom-4 left-4'
+};
 ---
 
 <div
   id={id}
-  class={`hidden items-center p-4 mb-4 text-sm border rounded-lg ${alertStyles[type]} transition-all duration-300`}
+  class={`hidden fixed ${positionStyles[position]} items-center p-4 text-sm border rounded-lg shadow-lg ${alertStyles[type]} transition-all duration-300 ease-in-out transform translate-x-0 opacity-0 z-50 max-w-md`}
   role="alert"
+  data-auto-close={autoClose}
+  data-duration={duration}
 >
   <svg class="flex-shrink-0 inline w-4 h-4 me-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
     <path d={iconPaths[type]} />
@@ -61,13 +80,78 @@ const iconPaths = {
     dismissButtons.forEach(button => {
       button.addEventListener('click', () => {
         const targetId = button.getAttribute('data-dismiss-target');
-        // const target = document.querySelector(targetId);
         const target = targetId ? document.getElementById(targetId.substring(1)) : null;
         if (target) {
-          target.classList.add('hidden');
-          target.classList.remove('flex');
+          hideAlert(target);
         }
       });
     });
   });
+
+  function hideAlert(target: HTMLElement) {
+    target.classList.remove('opacity-100', 'translate-x-0');
+    target.classList.add('opacity-0', 'translate-x-full');
+    setTimeout(() => {
+      target.classList.add('hidden');
+      target.classList.remove('flex');
+    }, 300);
+  }
+
+  // Función global para mostrar alertas
+  (window as any).showAlert = function(message: string, type: 'success' | 'error' | 'warning' | 'info' = 'info', duration: number = 5000) {
+    const alert = document.getElementById('global-alert'); // Cambiar de 'alert' a 'global-alert'
+    if (!alert) return;
+
+    const messageContainer = document.getElementById('global-alert-message'); // Cambiar el ID
+    if (messageContainer) {
+      messageContainer.textContent = message;
+    }
+
+    // Actualizar estilos según el tipo
+    const alertStyles = {
+      success: 'text-green-800 bg-green-50 border-green-300 dark:bg-gray-800 dark:text-green-400 dark:border-green-800',
+      error: 'text-red-800 bg-red-50 border-red-300 dark:bg-gray-800 dark:text-red-400 dark:border-red-800',
+      warning: 'text-yellow-800 bg-yellow-50 border-yellow-300 dark:bg-gray-800 dark:text-yellow-300 dark:border-yellow-800',
+      info: 'text-blue-800 bg-blue-50 border-blue-300 dark:bg-gray-800 dark:text-blue-400 dark:border-blue-800'
+    };
+
+    // Remover todas las clases de tipo
+    Object.values(alertStyles).forEach(styles => {
+      styles.split(' ').forEach(cls => alert.classList.remove(cls));
+    });
+
+    // Añadir las nuevas clases
+    alertStyles[type].split(' ').forEach(cls => alert.classList.add(cls));
+
+    // Actualizar icono
+    const iconPaths = {
+      success: 'M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z',
+      error: 'M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 11.793a1 1 0 1 1-1.414 1.414L10 11.414l-2.293 2.293a1 1 0 0 1-1.414-1.414L8.586 10 6.293 7.707a1 1 0 0 1 1.414-1.414L10 8.586l2.293-2.293a1 1 0 0 1 1.414 1.414L11.414 10l2.293 2.293Z',
+      warning: 'M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM10 15a1 1 0 1 1 0-2 1 1 0 0 1 0 2Zm1-4a1 1 0 0 1-2 0V6a1 1 0 0 1 2 0v5Z',
+      info: 'M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z'
+    };
+
+    const svgPath = alert.querySelector('svg path');
+    if (svgPath) {
+      svgPath.setAttribute('d', iconPaths[type]);
+    }
+
+    // Mostrar alerta con animación
+    alert.classList.remove('hidden', 'opacity-0', 'translate-x-full');
+    alert.classList.add('flex', 'opacity-100', 'translate-x-0');
+
+    // Auto cerrar
+    if (alert.getAttribute('data-auto-close') === 'true') {
+      setTimeout(() => {
+        hideAlert(alert);
+      }, duration);
+    }
+  };
+
+  // Declarar tipo global
+  declare global {
+    interface Window {
+      showAlert: (message: string, type: 'success' | 'error' | 'warning' | 'info', duration?: number) => void;
+    }
+  }
 </script>

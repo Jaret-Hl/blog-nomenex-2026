@@ -1,6 +1,6 @@
 ---
 import GradientOverlay from "../components/GradientOverlay.astro";
-
+import Alert from '../components/ui/Alert.astro';
 
 ---
 
@@ -26,6 +26,9 @@ import GradientOverlay from "../components/GradientOverlay.astro";
         <slot />
       </div>
     </div>
+
+    <!-- Alert global - una sola instancia para toda la aplicación -->
+    <Alert id="global-alert" position="bottom-right" />
   </body>
 </html>
 
