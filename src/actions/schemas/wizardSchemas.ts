@@ -4,7 +4,7 @@ export const WizardStepSchema = z.object({
   step: z.coerce.number().int().min(1).max(4),
 
   // STEP 1
-  employees: z.coerce.number().min(1, 'Mínimo 1 empleado').max(1000, 'Máximo 1000 empleados').optional(),
+  employees: z.coerce.number().min(1, 'Mínimo 1 empleado').max(100, 'Máximo 100 empleados').optional(),
   locations: z.string().min(1, 'Selecciona el número de sedes').optional(),
 
   // STEP 2
