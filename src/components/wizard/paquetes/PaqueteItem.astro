@@ -106,22 +106,22 @@ const { paquete, isSelected } = Astro.props;
       class="grid grid-cols-1 gap-y-2 text-[11px] sm:text-xs text-slate-600 dark:text-white/70"
     >
       {
-        paquete.caracteristicas.map((caracteristica) => (
-          <li class="flex items-start gap-2">
-            <span class="flex-shrink-0 mt-0.5">
-              {caracteristica.incluido ? "✓" : "✗"}
-            </span>
-            <span>
-              {caracteristica.label}
-              {caracteristica.nota && (
-                <span class="text-[10px] text-slate-400 dark:text-white/60">
-                  {" "}
-                  ({caracteristica.nota})
-                </span>
-              )}
-            </span>
-          </li>
-        ))
+        paquete.caracteristicas
+          .filter((caracteristica) => caracteristica.incluido)
+          .map((caracteristica) => (
+        <li class="flex items-start gap-2">
+          <span class="flex-shrink-0 mt-0.5">✓</span>
+          <span>
+            {caracteristica.label}
+            {caracteristica.nota && (
+          <span class="text-[10px] text-slate-400 dark:text-white/60">
+            {" "}
+            ({caracteristica.nota})
+          </span>
+            )}
+          </span>
+        </li>
+          ))
       }
     </ul>
   </div>
