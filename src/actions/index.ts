@@ -4,6 +4,7 @@ import { WizardStepSchema } from "./schemas/wizardSchemas";
 import { WizardStorage, type WizardData } from "../lib/wizardStorage";
 import { calculateQuote } from "@/lib/pricing/calculateQuote";
 import type { WizardState } from "@/lib/pricing/types";
+import { bookSession } from './bookSession';
 
 // Función para transformar WizardData a WizardState
 function transformToWizardState(data: WizardData): WizardState | null {
@@ -115,4 +116,6 @@ export const server = {
       return { success: true };
     },
   }),
+
+  bookSession,
 };
