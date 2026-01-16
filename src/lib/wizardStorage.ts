@@ -30,8 +30,7 @@ export class WizardStorage {
       const data = cookies.get(COOKIE_NAME)?.value;
       return data ? JSON.parse(data) : {};
     } catch (error) {
-      console.error('Error parsing wizard data:', error);
-      return {};
+      throw error;
     }
   }
 

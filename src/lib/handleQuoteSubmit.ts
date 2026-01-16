@@ -71,8 +71,8 @@ export async function handleQuoteSubmit(event: Event) {
     alert("Cotización enviada exitosamente");
     contactForm.reset();
   } catch (error) {
-    console.error("Error al enviar cotización:", error);
     alert("Error al enviar la cotización. Intenta nuevamente.");
+    throw error;
   }
 
   // Crear objeto completo para envío de email

@@ -7,7 +7,6 @@ export function calculateQuote(state: WizardState) {
   const employees = state.step1?.employees;
   
   if (!employees || !state.step2?.packageId) {
-    console.error("Missing required data:", state);
     return { total: 0 };
   }
 

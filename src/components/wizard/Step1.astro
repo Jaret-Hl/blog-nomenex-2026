@@ -195,7 +195,7 @@ const { data } = Astro.props;
     } catch (error) {
       // Usar el alert global
       window.showAlert('Error inesperado. Por favor intenta de nuevo.', 'error');
-      console.error('Error:', error);
+      throw error;
     } finally {
       submitBtn.disabled = false;
       submitBtn.textContent = 'Continuar';

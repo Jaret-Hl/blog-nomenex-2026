@@ -19,8 +19,7 @@ export function getWizardData(): WizardData {
     const decodedValue = decodeURIComponent(cookieValue);
     return JSON.parse(decodedValue) as WizardData;
   } catch (error) {
-    console.error('Error al parsear wizard-data:', error);
-    return {};
+    throw new Error('Error al obtener datos del wizard desde la cookie: ' + (error instanceof Error ? error.message : 'Error desconocido'));
   }
 }
 

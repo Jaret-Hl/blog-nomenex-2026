@@ -264,7 +264,7 @@ export class BookingModalManager {
       const errorMessage =
         error instanceof Error ? error.message : "Error desconocido";
       alert(`Error al agendar: ${errorMessage}`);
-      console.error("Booking error:", error);
+      throw new Error(errorMessage);
     } finally {
       this.elements.confirmBtn.textContent = "Confirmar reserva";
       this.elements.confirmBtn.disabled = !this.state.selectedSlot;
@@ -287,7 +287,6 @@ export class BookingModalManager {
       });
 
       if (error) {
-        console.error("Action error:", error);
         throw new Error(error.message || "Error en la validación de datos");
       }
 
@@ -296,8 +295,9 @@ export class BookingModalManager {
         message: data?.message,
       };
     } catch (error) {
-      console.error("Submit booking error:", error);
-      throw error;
+      const errorMessage =
+        error instanceof Error ? error.message : "Error desconocido";
+      throw new Error(errorMessage);
     }
   }
 }

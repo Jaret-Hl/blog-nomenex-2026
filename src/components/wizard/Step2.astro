@@ -135,11 +135,11 @@ const { data } = Astro.props;
         }, 1500);
       }
     } catch (error) {
-      console.error("Error submitting form:", error);
       window.showAlert(
         "Error inesperado. Por favor intenta de nuevo.",
         "error"
       );
+      throw error;
     } finally {
       submitBtn.disabled = false;
       submitBtn.textContent = "Continuar";
