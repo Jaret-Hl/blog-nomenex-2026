@@ -4,6 +4,7 @@ interface Props {
     id: string;
     nombre: string;
     etiqueta: string;
+    descripcion?: string;
     caracteristicas: Array<{
       label: string;
       incluido: boolean;
@@ -20,40 +21,19 @@ const { paquete, isSelected } = Astro.props;
 ---
 
 <div
-  class={`paqueteCard group mb-3 p-3 sm:p-4 border-2 border-gray-200 dark:border-gray-600 rounded-xl cursor-pointer transition-all duration-200 ${
+  data-package-id={paquete.id}
+  class={`paqueteCard group mb-3 p-3 sm:p-4 border-2 rounded-xl cursor-pointer transition-all duration-200 ${
     isSelected
-      ? "border-blue-600 bg-blue-50/40 shadow-sm"
-      : "border-slate-100 bg-white dark:bg-gray-800 hover:border-blue-200 shadow-sm"
+      ? "border-yellow-500 ring-2 ring-yellow-400 shadow-lg bg-white dark:bg-gray-800"
+      : "border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-yellow-300 hover:shadow-md"
   }`}
 >
-  <label
-    class="flex items-start sm:items-center justify-between gap-2 sm:gap-4 cursor-pointer"
-  >
+  <div class="flex items-start sm:items-center justify-between gap-2 sm:gap-4">
     <div class="flex items-start sm:items-center gap-2 sm:gap-3 flex-1 min-w-0">
-      <div
-        class={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors flex-shrink-0 mt-0.5 sm:mt-0 ${
-          isSelected ? "border-blue-600 bg-blue-600" : "border-slate-300"
-        }`}
-      >
-        {
-          isSelected && (
-            <div class="w-1.5 h-1.5 rounded-full bg-white dark:bg-gray-800" />
-          )
-        }
-      </div>
-
-      <input
-        type="radio"
-        name="packageId"
-        value={paquete.id}
-        checked={isSelected}
-        class="sr-only"
-      />
-
       <div class="min-w-0 flex-1">
         <div class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
           <h3
-            class="font-bold text-sm sm:text-base text-slate-800 truncate text-dark dark:text-white"
+            class="font-bold text-sm sm:text-base text-slate-800 truncate dark:text-white"
           >
             {paquete.nombre}
           </h3>
@@ -66,10 +46,19 @@ const { paquete, isSelected } = Astro.props;
           }
         </div>
         <p
-          class="text-[11px] sm:text-xs text-slate-500 line-clamp-2 sm:line-clamp-1"
+          class="text-[11px] sm:text-xs text-yellow-500 font-bold line-clamp-2 sm:line-clamp-1"
         >
           {paquete.etiqueta}
         </p>
+        {
+          paquete.descripcion && (
+            <p
+              class="text-[10px] sm:text-xs text-slate-500 dark:text-white/70 mt-1 sm:mt-0.5 line-clamp-2"
+            >
+              {paquete.descripcion}
+            </p>
+          )
+        }
       </div>
     </div>
 
@@ -92,10 +81,10 @@ const { paquete, isSelected } = Astro.props;
           stroke-linejoin="round"></path>
       </svg>
     </button>
-  </label>
+  </div>
 
   <div
-    class="details-content hidden mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-blue-100"
+    class="details-content hidden mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-slate-200 dark:border-gray-700"
   >
     <p
       class="text-[10px] font-semibold text-slate-400 dark:text-white/60 uppercase mb-2"

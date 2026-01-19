@@ -7,6 +7,7 @@ const { data } = Astro.props;
 <!-- integrando paquetes -->
 <form class="pt-4 max-w-3xl mx-auto" id="step2Form">
   <input type="hidden" name="step" value="2" />
+  <input type="hidden" name="packageId" id="selectedPackageId" value={data.packageId || ""} />
   <div class="space-y-4">
     <h2 class="text-xl font-medium">
       2. Selecciona el paquete que mejor se adapte a tu operación
@@ -54,6 +55,7 @@ const { data } = Astro.props;
   const submitBtn = document.getElementById("submitBtn") as HTMLButtonElement;
   const backBtn = document.getElementById("backBtn") as HTMLButtonElement;
   const paqueteCards = form.querySelectorAll(".paqueteCard");
+  const hiddenInput = document.getElementById("selectedPackageId") as HTMLInputElement;
 
   // Botón volver sin recargar
   backBtn.addEventListener("click", () => {
@@ -75,33 +77,27 @@ const { data } = Astro.props;
       svg.style.transform = isHidden ? "rotate(180deg)" : "rotate(0deg)";
     });
 
-    const radioInput = card.querySelector(
-      'input[type="radio"]'
-    ) as HTMLInputElement;
     card.addEventListener("click", (e) => {
       if ((e.target as HTMLElement).closest(".toggle-details")) return;
 
-      radioInput.checked = true;
+      const packageId = card.getAttribute("data-package-id");
+      hiddenInput.value = packageId || "";
+
       paqueteCards.forEach((otherCard) => {
-        otherCard.classList.remove("border-blue-600", "bg-blue-50/40");
-        otherCard.classList.add(
-          "border-slate-100",
-          "bg-white",
-          "dark:bg-gray-800"
-        );
+        otherCard.classList.remove("border-yellow-500", "ring-2", "ring-yellow-400", "shadow-lg");
+        otherCard.classList.add("border-slate-200", "dark:border-gray-700");
       });
-      card.classList.add("border-blue-600", "bg-blue-50/40");
-      card.classList.remove("border-slate-100", "bg-white", "dark:bg-gray-800");
+      
+      card.classList.add("border-yellow-500", "ring-2", "ring-yellow-400", "shadow-lg");
+      card.classList.remove("border-slate-200", "dark:border-gray-700");
     });
   });
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    const selectedPackage = form.querySelector(
-      'input[name="packageId"]:checked'
-    ) as HTMLInputElement;
-    if (!selectedPackage) {
+    const selectedPackageId = hiddenInput.value;
+    if (!selectedPackageId) {
       window.showAlert(
         "Por favor, selecciona un paquete para continuar.",
         "error"

@@ -4,6 +4,7 @@
     "nombre": "Paquete Básico",
     "etiqueta": "Esencial",
     "orden": 1,
+    "descripcion": "*Asesoría legal incluida para el paquete.",
     "ui": {
       "border": "border-gray-300",
       "highlight": false
@@ -54,6 +55,7 @@
     "nombre": "Paquete Profesional",
     "etiqueta": "Corporativo",
     "orden": 2,
+    "descripcion": "*Asesoría legal incluida para el paquete.",
     "ui": {
       "border": "border-orange-600",
       "highlight": true
@@ -104,6 +106,7 @@
     "nombre": "Paquete Premium",
     "etiqueta": "Estratégico",
     "orden": 3,
+    "descripcion": "*Asesoría legal incluida para el paquete.",
     "ui": {
       "border": "border-amber-100",
       "highlight": true
