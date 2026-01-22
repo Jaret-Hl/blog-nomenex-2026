@@ -1,8 +1,9 @@
-import { sendMail } from '@/lib/send/sendEmail';
+import { sendMail } from '@/lib/send/sendEmail.server';
 import { defineAction } from 'astro:actions';
 import { z } from 'astro:schema';
 import { ClientDataManager } from '@/lib/clientDataManager';
 import { CalendarService } from '@/lib/calendar/calendarService';
+
 
 export const bookSession = defineAction({
   accept: 'json',
@@ -53,7 +54,7 @@ export const bookSession = defineAction({
           <div style="background: #f3f4f6; padding: 16px; border-radius: 8px; margin: 20px 0;">
             <p><strong>📅 Fecha y hora:</strong></p>
             <p>${new Date(start).toLocaleString('es-MX', { 
-              timeZone: import.meta.env.MS_TIMEZONE,
+              timeZone: import.meta.env.TIMEZONE,
               dateStyle: 'full',
               timeStyle: 'short'
             })}</p>
@@ -63,7 +64,7 @@ export const bookSession = defineAction({
           <p>Recibirás un recordatorio 24 horas antes de tu sesión.</p>
           
           <p style="color: #666; font-size: 12px; margin-top: 20px;">
-            Zona horaria: ${import.meta.env.MS_TIMEZONE}
+            Zona horaria: ${import.meta.env.TIMEZONE}
           </p>
         `,
       });
