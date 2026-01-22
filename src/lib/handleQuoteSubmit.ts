@@ -3,7 +3,7 @@ import type { ContactData, QuoteData } from "../types/wizard";
 import { calculateQuote } from "./pricing/calculateQuote";
 import type { WizardState } from "./pricing/types";
 import { sanitizeInput } from "@/utils/sanitize";
-import { sendMail } from "@/lib/send/sendEmail";
+import { sendMail } from "@/lib/send/sendEmail.server";
 
 function convertToWizardState(wizardData: any): WizardState {
   return {
