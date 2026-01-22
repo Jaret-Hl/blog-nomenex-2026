@@ -1,3 +1,4 @@
+// import { AZURE_TENANT_ID } from './../../.astro/env.d';
 export async function getMicrosoftToken() {
   const url = `https://login.microsoftonline.com/${import.meta.env.AZURE_TENANT_ID}/oauth2/v2.0/token`;
 
