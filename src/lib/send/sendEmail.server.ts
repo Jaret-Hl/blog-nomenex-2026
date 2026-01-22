@@ -1,6 +1,5 @@
-// import { getGraphAccessToken } from './msGraphAuth';
 
-import { getMicrosoftToken } from "../microsoftAuth";
+import { getMicrosoftToken } from "../microsoftAuth.server";
 
 interface SendMailParams {
   to: string;
