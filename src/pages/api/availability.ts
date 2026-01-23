@@ -1,4 +1,4 @@
-import { getMicrosoftToken } from "@/lib/microsoftAuth.server";
+import { getMicrosoftToken } from "../../lib/microsoftAuth.server";
 import type { APIContext } from "astro";
 
 export async function POST({ request }: APIContext) {
