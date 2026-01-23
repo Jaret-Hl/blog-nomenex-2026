@@ -36,38 +36,58 @@ export const bookSession = defineAction({
         validatedClient
       );
       
-      const calendarResult = await CalendarService.createEvent(event);
+// En bookSession.ts, después de crear el evento
+const calendarResult = await CalendarService.createEvent(event);
+
+if (!calendarResult.success) {
+  console.error('Error al crear evento:', calendarResult.error);
+  // Continuar con el proceso aunque falle el calendario
+}
+
+// 2. Enviar correo de confirmación
+await sendMail({
+  to: validatedClient.email,
+  subject: 'Sesión confirmada - Nomenex',
+  html: `
+    <h2>Hola ${validatedClient.name}</h2>
+    <p>Tu sesión ha sido agendada exitosamente.</p>
+    
+    <div style="background: #f3f4f6; padding: 16px; border-radius: 8px; margin: 20px 0;">
+      <h3 style="margin-top: 0;">📋 Detalles de tu sesión</h3>
       
-      if (!calendarResult.success) {
-        console.error('Error al crear evento:', calendarResult.error);
-        // Continuar con el proceso aunque falle el calendario
-      }
+      <p><strong>👤 Nombre:</strong> ${validatedClient.name}</p>
+      ${validatedClient.company ? `<p><strong>🏢 Empresa:</strong> ${validatedClient.company}</p>` : ''}
+      <p><strong>📧 Email:</strong> ${validatedClient.email}</p>
+      ${validatedClient.phone ? `<p><strong>📱 Teléfono:</strong> ${validatedClient.phone}</p>` : ''}
+      
+      <hr style="border: none; border-top: 1px solid #d1d5db; margin: 16px 0;">
+      
+      <p><strong>📅 Fecha y hora:</strong></p>
+      <p style="font-size: 16px; margin: 8px 0;">${new Date(start).toLocaleString('es-MX', { 
+        timeZone: import.meta.env.MS_TIMEZONE,
+        dateStyle: 'full',
+        timeStyle: 'short'
+      })}</p>
+      
+      <p><strong>⏱️ Duración:</strong> ${calculateDuration(start, end)} minutos</p>
+      
+      ${calendarResult.joinUrl ? `
+        <p style="margin-top: 16px;">
+          <a href="${calendarResult.joinUrl}" 
+             style="background: #0078d4; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; display: inline-block;">
+            🎥 Unirse a la reunión de Teams
+          </a>
+        </p>
+      ` : ''}
+    </div>
 
-      // 2. Enviar correo de confirmación
-      await sendMail({
-        to: validatedClient.email,
-        subject: 'Sesión confirmada - Nomenex',
-        html: `
-          <h2>Hola ${validatedClient.name}</h2>
-          <p>Tu sesión ha sido agendada exitosamente.</p>
-          
-          <div style="background: #f3f4f6; padding: 16px; border-radius: 8px; margin: 20px 0;">
-            <p><strong>📅 Fecha y hora:</strong></p>
-            <p>${new Date(start).toLocaleString('es-MX', { 
-              timeZone: import.meta.env.TIMEZONE,
-              dateStyle: 'full',
-              timeStyle: 'short'
-            })}</p>
-            <p><strong>⏱️ Duración:</strong> ${calculateDuration(start, end)} minutos</p>
-          </div>
-
-          <p>Recibirás un recordatorio 24 horas antes de tu sesión.</p>
-          
-          <p style="color: #666; font-size: 12px; margin-top: 20px;">
-            Zona horaria: ${import.meta.env.TIMEZONE}
-          </p>
-        `,
-      });
+    <p>Recibirás un recordatorio 24 horas antes de tu sesión.</p>
+    
+    <p style="color: #666; font-size: 12px; margin-top: 20px;">
+      Zona horaria: ${import.meta.env.MS_TIMEZONE}
+    </p>
+  `,
+});
 
       return {
         success: true,
