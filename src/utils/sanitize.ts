@@ -20,6 +20,11 @@ export const sanitizeInput = {
     return validator.normalizeEmail(email) || '';
   },
 
+  company(input: string): string {
+    const trimmed = validator.trim(input);
+    return validator.escape(trimmed.replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s&.,-]/g, ''));
+  },
+
   // Sanitiza URL
   url(url: string): string {
     const trimmed = validator.trim(url);
