@@ -252,11 +252,18 @@ export class BookingModalManager {
       );
 
       if (result.success) {
+        // Limpiar cookies del wizard
+        await actions.clearWizard();
+        
         alert(
           result.message ||
             "¡Sesión agendada exitosamente! Recibirás un correo de confirmación."
         );
         this.closeModal();
+        
+        // Redirigir a la página principal sin permitir volver atrás
+        // replace() reemplaza la entrada actual del historial
+        window.location.replace("/");
       } else {
         alert("Error al agendar. Intenta nuevamente.");
       }
