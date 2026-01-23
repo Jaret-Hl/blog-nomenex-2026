@@ -104,101 +104,137 @@ const { data } = Astro.props;
   import { actions } from 'astro:actions';
   import { AlertManager } from '../../lib/alertUtils';
 
-  const form = document.getElementById('step1Form') as HTMLFormElement;
-  const slider = document.getElementById('employeeRangeSlider') as HTMLInputElement;
-  const numberInput = document.getElementById('employeeCount') as HTMLInputElement;
-  const locationSelect = document.getElementById('locations') as HTMLSelectElement;
-  const submitBtn = document.getElementById('submitBtn') as HTMLButtonElement;
+  // Guard para SSR
+  if (typeof window === 'undefined') {
+    throw new Error('This script should only run on the client');
+  }
 
-  // Limpiar errores al escribir
-  numberInput.addEventListener('input', () => {
-    const value = parseInt(numberInput.value) || 0;
-    if (value <= 100) {
-      slider.value = numberInput.value;
-    }
-    AlertManager.clearFieldError('employeeCount');
-  });
+  function initializeStep1() {
+    const form = document.getElementById('step1Form') as HTMLFormElement | null;
+    const slider = document.getElementById('employeeRangeSlider') as HTMLInputElement | null;
+    const numberInput = document.getElementById('employeeCount') as HTMLInputElement | null;
+    const locationSelect = document.getElementById('locations') as HTMLSelectElement | null;
+    const submitBtn = document.getElementById('submitBtn') as HTMLButtonElement | null;
 
-  locationSelect.addEventListener('change', () => {
-    AlertManager.clearFieldError('locations');
-  });
-
-  slider.addEventListener('input', () => {
-    numberInput.value = slider.value;
-    AlertManager.clearFieldError('employeeCount');
-  });
-
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    
-    // Limpiar errores previos
-    AlertManager.clearAllFieldErrors('step1Form');
-    
-    // Validación del lado del cliente
-    const employees = parseInt(numberInput.value);
-    const locations = locationSelect.value;
-
-    let hasErrors = false;
-
-    if (!employees || employees < 1) {
-      AlertManager.showFieldError('employeeCount', 'Debes indicar al menos 1 empleado');
-      hasErrors = true;
-    } else if (employees > 100) {
-      AlertManager.showFieldError('employeeCount', 'Máximo 100 empleados');
-      hasErrors = true;
-    }
-
-    if (!locations) {
-      AlertManager.showFieldError('locations', 'Debes seleccionar el número de sedes');
-      hasErrors = true;
-    }
-
-    if (hasErrors) {
-      // Usar el alert global
-      window.showAlert('Por favor completa todos los campos requeridos', 'error');
+    if (!form || !slider || !numberInput || !locationSelect || !submitBtn) {
+      console.error('[Step1] Required elements not found');
       return;
     }
 
-    submitBtn.disabled = true;
-    submitBtn.textContent = 'Guardando...';
+    // Cleanup function
+    const cleanup = () => {
+      numberInput.removeEventListener('input', handleNumberInput);
+      locationSelect.removeEventListener('change', handleLocationChange);
+      slider.removeEventListener('input', handleSliderInput);
+      form.removeEventListener('submit', handleSubmit);
+    };
 
-    try {
-      const formData = new FormData(form);
-      const response = await actions.wizardStep(formData);
+    const handleNumberInput = () => {
+      const value = parseInt(numberInput.value) || 0;
+      if (value <= 100) {
+        slider.value = numberInput.value;
+      }
+      AlertManager.clearFieldError('employeeCount');
+    };
 
-      if (response.error) {
-        const errorMessage = response.error.message || 'Error al guardar los datos';
-        // Usar el alert global
-        window.showAlert(errorMessage, 'error');
-        
-        // Mostrar errores específicos de campos si existen
-        const errorData = response.error as any;
-        if (errorData.fields && typeof errorData.fields === 'object') {
-          Object.entries(errorData.fields as Record<string, string[]>).forEach(([field, messages]) => {
-            if (Array.isArray(messages) && messages.length > 0) {
-              AlertManager.showFieldError(field, messages[0]);
-            }
-          });
+    const handleLocationChange = () => {
+      AlertManager.clearFieldError('locations');
+    };
+
+    const handleSliderInput = () => {
+      numberInput.value = slider.value;
+      AlertManager.clearFieldError('employeeCount');
+    };
+
+    const handleSubmit = async (e: Event) => {
+      e.preventDefault();
+      
+      AlertManager.clearAllFieldErrors('step1Form');
+      
+      const employees = parseInt(numberInput.value);
+      const locations = locationSelect.value;
+
+      let hasErrors = false;
+
+      if (!employees || employees < 1) {
+        AlertManager.showFieldError('employeeCount', 'Debes indicar al menos 1 empleado');
+        hasErrors = true;
+      } else if (employees > 100) {
+        AlertManager.showFieldError('employeeCount', 'Máximo 100 empleados');
+        hasErrors = true;
+      }
+
+      if (!locations) {
+        AlertManager.showFieldError('locations', 'Debes seleccionar el número de sedes');
+        hasErrors = true;
+      }
+
+      if (hasErrors) {
+        if (typeof window.showAlert === 'function') {
+          window.showAlert('Por favor completa todos los campos requeridos', 'error');
         }
         return;
       }
 
-      if (response.data?.success) {
-        // Usar el alert global
-        window.showAlert('✓ Datos guardados correctamente', 'success', 1500);
-        
-        // Navegar al siguiente step sin recargar la página
-        setTimeout(() => {
-          document.dispatchEvent(new CustomEvent('wizard:next'));
-        }, 1500);
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Guardando...';
+
+      try {
+        const formData = new FormData(form);
+        const response = await actions.wizardStep(formData);
+
+        if (response.error) {
+          const errorMessage = response.error.message || 'Error al guardar los datos';
+          if (typeof window.showAlert === 'function') {
+            window.showAlert(errorMessage, 'error');
+          }
+          
+          const errorData = response.error as any;
+          if (errorData.fields && typeof errorData.fields === 'object') {
+            Object.entries(errorData.fields as Record<string, string[]>).forEach(([field, messages]) => {
+              if (Array.isArray(messages) && messages.length > 0) {
+                AlertManager.showFieldError(field, messages[0]);
+              }
+            });
+          }
+          return;
+        }
+
+        if (response.data?.success) {
+          if (typeof window.showAlert === 'function') {
+            window.showAlert('✓ Datos guardados correctamente', 'success', 1500);
+          }
+          
+          setTimeout(() => {
+            document.dispatchEvent(new CustomEvent('wizard:next'));
+          }, 1500);
+        }
+      } catch (error) {
+        if (typeof window.showAlert === 'function') {
+          window.showAlert('Error inesperado. Por favor intenta de nuevo.', 'error');
+        }
+        console.error('[Step1] Submit error:', error);
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Continuar';
       }
-    } catch (error) {
-      // Usar el alert global
-      window.showAlert('Error inesperado. Por favor intenta de nuevo.', 'error');
-      throw error;
-    } finally {
-      submitBtn.disabled = false;
-      submitBtn.textContent = 'Continuar';
-    }
-  });
+    };
+
+    numberInput.addEventListener('input', handleNumberInput);
+    locationSelect.addEventListener('change', handleLocationChange);
+    slider.addEventListener('input', handleSliderInput);
+    form.addEventListener('submit', handleSubmit);
+
+    // Cleanup on navigation
+    document.addEventListener('astro:before-preparation', cleanup, { once: true });
+    
+    return cleanup;
+  }
+
+  // Inicializar solo una vez
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeStep1);
+  } else {
+    initializeStep1();
+  }
 </script>

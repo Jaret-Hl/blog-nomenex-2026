@@ -101,152 +101,165 @@ const { data } = Astro.props;
   import { actions } from "astro:actions";
   import { AlertManager } from "../../lib/alertUtils";
 
-  const form = document.querySelector("#step3Form") as HTMLFormElement;
-  const backBtn3 = document.getElementById("backBtn3") as HTMLButtonElement;
-  const submitBtn = document.getElementById("submitBtn") as HTMLButtonElement;
-  const bioNeededYes = document.getElementById(
-    "bioNeededYes"
-  ) as HTMLInputElement;
-  const bioNeededNo = document.getElementById(
-    "bioNeededNo"
-  ) as HTMLInputElement;
-  const bioDetails = document.getElementById("bioDetails") as HTMLDivElement;
-  const bioCount = document.getElementById("bioCount") as HTMLInputElement;
-  const bioType = document.getElementById("bioType") as HTMLSelectElement;
-
-  // Botón volver sin recargar
-  backBtn3.addEventListener("click", (e) => {
-    e.preventDefault();
-    document.dispatchEvent(new CustomEvent("wizard:prev"));
-    // console.log("Volver al paso anterior");
-  });
-
-  // Inicializar visibilidad de bioDetails según datos guardados
-  function initializeBioDetails() {
-    if (bioNeededYes.checked) {
-      bioDetails.classList.remove("hidden");
-    } else {
-      bioDetails.classList.add("hidden");
-    }
+  if (typeof window === 'undefined') {
+    throw new Error('This script should only run on the client');
   }
 
-  // Ejecutar al cargar
-  initializeBioDetails();
+  function initializeStep3() {
+    const form = document.querySelector("#step3Form") as HTMLFormElement | null;
+    const backBtn3 = document.getElementById("backBtn3") as HTMLButtonElement | null;
+    const submitBtn = document.getElementById("submitBtn") as HTMLButtonElement | null;
+    const bioNeededYes = document.getElementById("bioNeededYes") as HTMLInputElement | null;
+    const bioNeededNo = document.getElementById("bioNeededNo") as HTMLInputElement | null;
+    const bioDetails = document.getElementById("bioDetails") as HTMLDivElement | null;
+    const bioCount = document.getElementById("bioCount") as HTMLInputElement | null;
+    const bioType = document.getElementById("bioType") as HTMLSelectElement | null;
 
-
-  // Mostrar/ocultar detalles biométricos para ambos radios
-  bioNeededYes.addEventListener("change", () => {
-    if (bioNeededYes.checked) {
-      bioDetails.classList.remove("hidden");
-    }
-  });
-
-  bioNeededNo.addEventListener("change", () => {
-    if (bioNeededNo.checked) {
-      bioDetails.classList.add("hidden");
-    }
-  });
-
-  // Validación del formulario
-  function validateForm(): boolean {
-    // Validar que se haya seleccionado una opción
-    if (!bioNeededYes.checked && !bioNeededNo.checked) {
-      window.showAlert(
-        "Por favor, selecciona si requieres instalación de dispositivos.",
-        "error"
-      );
-      return false;
-    }
-
-    // Si requiere biométricos, validar campos adicionales
-    if (bioNeededYes.checked) {
-      const countValue = parseInt(bioCount.value);
-
-      if (!bioCount.value || countValue < 1) {
-        window.showAlert(
-          "Por favor, ingresa un número válido de dispositivos (mínimo 1).",
-          "error"
-        );
-        bioCount.focus();
-        return false;
-      }
-
-      if (countValue > 100) {
-        window.showAlert(
-          "El número máximo de dispositivos es 100. Para cantidades mayores, contacta a ventas.",
-          "error"
-        );
-        bioCount.focus();
-        return false;
-      }
-
-      if (!bioType.value) {
-        window.showAlert(
-          "Por favor, selecciona el tipo de dispositivo.",
-          "error"
-        );
-        bioType.focus();
-        return false;
-      }
-    }
-
-    return true;
-  }
-
-  form.addEventListener("submit", async (e) => {
-    e.preventDefault();
-
-    if (!validateForm()) {
+    if (!form || !backBtn3 || !submitBtn || !bioNeededYes || !bioNeededNo || !bioDetails || !bioCount || !bioType) {
+      console.error('[Step3] Required elements not found');
       return;
     }
 
-    submitBtn.disabled = true;
-    submitBtn.textContent = "Guardando...";
+    const cleanup = () => {
+      backBtn3.removeEventListener('click', handleBack);
+      bioNeededYes.removeEventListener('change', handleBioYes);
+      bioNeededNo.removeEventListener('change', handleBioNo);
+      form.removeEventListener('submit', handleSubmit);
+    };
 
-    try {
-      const formData = new FormData(form);
-
-      // Normalizar valores según la selección
-      if (bioNeededNo.checked) {
-        formData.set("bioRequired", "false");
-        formData.delete("bioCount");
-        formData.delete("bioType");
+    function initializeBioDetails() {
+      if (bioNeededYes && bioNeededYes.checked) {
+        bioDetails?.classList.remove("hidden");
       } else {
-        formData.set("bioRequired", "true");
-        const count = parseInt(bioCount.value) || 1;
-        formData.set("bioCount", count.toString());
-        const type = bioType.value || "basic";
-        formData.set("bioType", type);
+        bioDetails?.classList.add("hidden");
+      }
+    }
+
+    const handleBack = (e: Event) => {
+      e.preventDefault();
+      document.dispatchEvent(new CustomEvent("wizard:prev"));
+    };
+
+    const handleBioYes = () => {
+      if (bioNeededYes.checked) {
+        bioDetails.classList.remove("hidden");
+      }
+    };
+
+    const handleBioNo = () => {
+      if (bioNeededNo.checked) {
+        bioDetails.classList.add("hidden");
+      }
+    };
+
+    function validateForm(): boolean {
+      if (!bioNeededYes || !bioNeededNo || !bioNeededYes.checked && !bioNeededNo.checked) {
+        if (typeof window.showAlert === 'function') {
+          window.showAlert("Por favor, selecciona si requieres instalación de dispositivos.", "error");
+        }
+        return false;
       }
 
-      const response = await actions.wizardStep(formData);
+      if (bioNeededYes.checked) {
+        const countValue = parseInt(bioCount?.value || '');
 
-      if (response.error) {
-        const errorMessage =
-          response.error.message ||
-          "Error al guardar la configuración biométrica";
-        window.showAlert(errorMessage, "error");
+        if (!bioCount?.value || countValue < 1) {
+          if (typeof window.showAlert === 'function') {
+            window.showAlert("Por favor, ingresa un número válido de dispositivos (mínimo 1).", "error");
+          }
+          bioCount?.focus();
+          return false;
+        }
+
+        if (countValue > 100) {
+          if (typeof window.showAlert === 'function') {
+            window.showAlert("El número máximo de dispositivos es 100. Para cantidades mayores, contacta a ventas.", "error");
+          }
+          bioCount?.focus();
+          return false;
+        }
+
+        if (!bioType?.value) {
+          if (typeof window.showAlert === 'function') {
+            window.showAlert("Por favor, selecciona el tipo de dispositivo.", "error");
+          }
+          bioType?.focus();
+          return false;
+        }
+      }
+
+      return true;
+    }
+
+    const handleSubmit = async (e: Event) => {
+      e.preventDefault();
+
+      if (!validateForm()) {
         return;
       }
-      if (response.data?.success) {
-        window.showAlert(
-          "✓ Configuración biométrica guardada",
-          "success",
-          1500
-        );
 
-        setTimeout(() => {
-          document.dispatchEvent(new CustomEvent("wizard:next"));
-        }, 1500);
+      submitBtn.disabled = true;
+      submitBtn.textContent = "Guardando...";
+
+      try {
+        const formData = new FormData(form);
+
+        if (bioNeededNo.checked) {
+          formData.set("bioRequired", "false");
+          formData.delete("bioCount");
+          formData.delete("bioType");
+        } else {
+          formData.set("bioRequired", "true");
+          const count = parseInt(bioCount.value) || 1;
+          formData.set("bioCount", count.toString());
+          const type = bioType.value || "basic";
+          formData.set("bioType", type);
+        }
+
+        const response = await actions.wizardStep(formData);
+
+        if (response.error) {
+          const errorMessage = response.error.message || "Error al guardar la configuración biométrica";
+          if (typeof window.showAlert === 'function') {
+            window.showAlert(errorMessage, "error");
+          }
+          return;
+        }
+        if (response.data?.success) {
+          if (typeof window.showAlert === 'function') {
+            window.showAlert("✓ Configuración biométrica guardada", "success", 1500);
+          }
+
+          setTimeout(() => {
+            document.dispatchEvent(new CustomEvent("wizard:next"));
+          }, 1500);
+        }
+      } catch (error) {
+        if (typeof window.showAlert === 'function') {
+          window.showAlert("Error inesperado. Por favor intenta de nuevo.", "error");
+        }
+        console.error('[Step3] Submit error:', error);
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Continuar";
       }
-    } catch (error) {
-      window.showAlert(
-        "Error inesperado. Por favor intenta de nuevo.",
-        "error"
-      );
-    } finally {
-      submitBtn.disabled = false;
-      submitBtn.textContent = "Continuar";
-    }
-  });
+    };
+
+    initializeBioDetails();
+
+    backBtn3.addEventListener("click", handleBack);
+    bioNeededYes.addEventListener("change", handleBioYes);
+    bioNeededNo.addEventListener("change", handleBioNo);
+    form.addEventListener("submit", handleSubmit);
+
+    document.addEventListener('astro:before-preparation', cleanup, { once: true });
+    
+    return cleanup;
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeStep3);
+  } else {
+    initializeStep3();
+  }
 </script>

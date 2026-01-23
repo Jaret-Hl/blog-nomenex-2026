@@ -51,94 +51,139 @@ const { data } = Astro.props;
   import { actions } from "astro:actions";
   import { AlertManager } from "../../lib/alertUtils";
 
-  const form = document.querySelector("#step2Form") as HTMLFormElement;
-  const submitBtn = document.getElementById("submitBtn") as HTMLButtonElement;
-  const backBtn = document.getElementById("backBtn") as HTMLButtonElement;
-  const paqueteCards = form.querySelectorAll(".paqueteCard");
-  const hiddenInput = document.getElementById("selectedPackageId") as HTMLInputElement;
+  if (typeof window === 'undefined') {
+    throw new Error('This script should only run on the client');
+  }
 
-  // Botón volver sin recargar
-  backBtn.addEventListener("click", () => {
-    document.dispatchEvent(new CustomEvent("wizard:prev"));
-  });
+  function initializeStep2() {
+    const form = document.querySelector("#step2Form") as HTMLFormElement | null;
+    const submitBtn = document.getElementById("submitBtn") as HTMLButtonElement | null;
+    const backBtn = document.getElementById("backBtn") as HTMLButtonElement | null;
+    const hiddenInput = document.getElementById("selectedPackageId") as HTMLInputElement | null;
 
-  paqueteCards.forEach((card) => {
-    const toggleButton = card.querySelector(
-      ".toggle-details"
-    ) as HTMLButtonElement;
-    const detailsContent = card.querySelector(
-      ".details-content"
-    ) as HTMLDivElement;
-    const svg = toggleButton.querySelector("svg")!;
-
-    toggleButton.addEventListener("click", () => {
-      const isHidden = detailsContent.classList.contains("hidden");
-      detailsContent.classList.toggle("hidden");
-      svg.style.transform = isHidden ? "rotate(180deg)" : "rotate(0deg)";
-    });
-
-    card.addEventListener("click", (e) => {
-      if ((e.target as HTMLElement).closest(".toggle-details")) return;
-
-      const packageId = card.getAttribute("data-package-id");
-      hiddenInput.value = packageId || "";
-
-      paqueteCards.forEach((otherCard) => {
-        otherCard.classList.remove("border-yellow-500", "ring-2", "ring-yellow-400", "shadow-lg");
-        otherCard.classList.add("border-slate-200", "dark:border-gray-700");
-      });
-      
-      card.classList.add("border-yellow-500", "ring-2", "ring-yellow-400", "shadow-lg");
-      card.classList.remove("border-slate-200", "dark:border-gray-700");
-    });
-  });
-
-  form.addEventListener("submit", async (e) => {
-    e.preventDefault();
-
-    const selectedPackageId = hiddenInput.value;
-    if (!selectedPackageId) {
-      window.showAlert(
-        "Por favor, selecciona un paquete para continuar.",
-        "error"
-      );
+    if (!form || !submitBtn || !backBtn || !hiddenInput) {
+      console.error('[Step2] Required elements not found');
       return;
     }
 
-    submitBtn.disabled = true;
-    submitBtn.textContent = "Guardando...";
+    const paqueteCards = form.querySelectorAll(".paqueteCard");
+    const handlers = new Map<Element, Array<{ event: string; handler: EventListener }>>();
 
-    try {
-      const formData = new FormData(form);
-      const response = await actions.wizardStep(formData);
+    const cleanup = () => {
+      handlers.forEach((eventHandlers, element) => {
+        eventHandlers.forEach(({ event, handler }) => {
+          element.removeEventListener(event, handler);
+        });
+      });
+      handlers.clear();
+    };
 
-      if (response.error) {
-        const errorMessage =
-          response.error.message || "Error al guardar el paquete";
-        window.showAlert(errorMessage, "error");
+    const handleBack = () => {
+      document.dispatchEvent(new CustomEvent("wizard:prev"));
+    };
+
+    const handleSubmit = async (e: Event) => {
+      e.preventDefault();
+
+      const selectedPackageId = hiddenInput.value;
+      if (!selectedPackageId) {
+        if (typeof window.showAlert === 'function') {
+          window.showAlert("Por favor, selecciona un paquete para continuar.", "error");
+        }
         return;
       }
 
-      if (response.data?.success) {
-        window.showAlert(
-          "✓ Paquete seleccionado correctamente",
-          "success",
-          1500
-        );
+      submitBtn.disabled = true;
+      submitBtn.textContent = "Guardando...";
 
-        setTimeout(() => {
-          document.dispatchEvent(new CustomEvent("wizard:next"));
-        }, 1500);
+      try {
+        const formData = new FormData(form);
+        const response = await actions.wizardStep(formData);
+
+        if (response.error) {
+          const errorMessage = response.error.message || "Error al guardar el paquete";
+          if (typeof window.showAlert === 'function') {
+            window.showAlert(errorMessage, "error");
+          }
+          return;
+        }
+
+        if (response.data?.success) {
+          if (typeof window.showAlert === 'function') {
+            window.showAlert("✓ Paquete seleccionado correctamente", "success", 1500);
+          }
+
+          setTimeout(() => {
+            document.dispatchEvent(new CustomEvent("wizard:next"));
+          }, 1500);
+        }
+      } catch (error) {
+        if (typeof window.showAlert === 'function') {
+          window.showAlert("Error inesperado. Por favor intenta de nuevo.", "error");
+        }
+        console.error('[Step2] Submit error:', error);
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Continuar";
       }
-    } catch (error) {
-      window.showAlert(
-        "Error inesperado. Por favor intenta de nuevo.",
-        "error"
+    };
+
+    backBtn.addEventListener("click", handleBack);
+    handlers.set(backBtn, [{ event: 'click', handler: handleBack }]);
+
+    form.addEventListener("submit", handleSubmit);
+    handlers.set(form, [{ event: 'submit', handler: handleSubmit }]);
+
+    paqueteCards.forEach((card) => {
+      const toggleButton = card.querySelector(".toggle-details") as HTMLButtonElement | null;
+      const detailsContent = card.querySelector(".details-content") as HTMLDivElement | null;
+      const svg = toggleButton?.querySelector("svg");
+
+      if (!toggleButton || !detailsContent || !svg) return;
+
+      const handleToggle = () => {
+        const isHidden = detailsContent.classList.contains("hidden");
+        detailsContent.classList.toggle("hidden");
+        svg.style.transform = isHidden ? "rotate(180deg)" : "rotate(0deg)";
+      };
+
+      const handleCardClick = (e: Event) => {
+        if ((e.target as HTMLElement).closest(".toggle-details")) return;
+
+        const packageId = card.getAttribute("data-package-id");
+        if (packageId) {
+          hiddenInput.value = packageId;
+        }
+
+        paqueteCards.forEach((otherCard) => {
+          otherCard.classList.remove("border-yellow-500", "ring-2", "ring-yellow-400", "shadow-lg");
+          otherCard.classList.add("border-slate-200", "dark:border-gray-700");
+        });
+        
+        card.classList.add("border-yellow-500", "ring-2", "ring-yellow-400", "shadow-lg");
+        card.classList.remove("border-slate-200", "dark:border-gray-700");
+      };
+
+      toggleButton.addEventListener("click", handleToggle);
+      card.addEventListener("click", handleCardClick);
+
+      if (!handlers.has(card)) {
+        handlers.set(card, []);
+      }
+      handlers.get(card)!.push(
+        { event: 'click', handler: handleCardClick },
+        { event: 'click', handler: handleToggle }
       );
-      throw error;
-    } finally {
-      submitBtn.disabled = false;
-      submitBtn.textContent = "Continuar";
-    }
-  });
+    });
+
+    document.addEventListener('astro:before-preparation', cleanup, { once: true });
+    
+    return cleanup;
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeStep2);
+  } else {
+    initializeStep2();
+  }
 </script>

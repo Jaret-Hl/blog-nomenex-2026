@@ -24,50 +24,103 @@ import BookingModal from '../BookingModal.astro';
   import { handleQuoteSubmit } from '../../lib/handleQuoteSubmit';
   import { sanitizeInput } from '../../utils/sanitize';
 
-  const sendEmail = document.getElementById("sendEmailBtn") as HTMLButtonElement;
-  sendEmail.addEventListener("click", async (e) => {
-    const contactForm = document.getElementById("contactForm") as HTMLFormElement;
-    if (contactForm.checkValidity()) {
-      sendEmail.disabled = true;
-      sendEmail.textContent = 'Enviando...';
-      try {
-        await handleQuoteSubmit(e);
-      } finally {
-        sendEmail.disabled = false;
-        sendEmail.textContent = 'Enviar Cotización';
-      }
-    } else {
-      contactForm.reportValidity();
+  if (typeof window === 'undefined') {
+    throw new Error('This script should only run on the client');
+  }
+
+  function initializeFinalStep() {
+    const sendEmail = document.getElementById("sendEmailBtn") as HTMLButtonElement | null;
+    const openBookingBtn = document.getElementById("open-booking-modal") as HTMLButtonElement | null;
+    const contactForm = document.getElementById("contactForm") as HTMLFormElement | null;
+
+    if (!sendEmail || !openBookingBtn || !contactForm) {
+      console.error('[FinalStep] Required elements not found');
+      return;
     }
-  });
 
-  // Abrir modal de reserva
-  const openBookingBtn = document.getElementById("open-booking-modal");
-  openBookingBtn?.addEventListener("click", () => {
-    const contactForm = document.getElementById("contactForm") as HTMLFormElement;
-    
-    // VALIDAR FORMULARIO ANTES DE ABRIR MODAL
-    if (contactForm.checkValidity()) {
-      // Obtener datos del formulario con los IDs correctos
-      const nameInput = document.getElementById("userName") as HTMLInputElement;
-      const emailInput = document.getElementById("userEmail") as HTMLInputElement;
+    const cleanup = () => {
+      sendEmail.removeEventListener('click', handleEmailClick);
+      openBookingBtn.removeEventListener('click', handleBookingClick);
+    };
 
-      const clientName = sanitizeInput.name(nameInput?.value || '');
-      const clientEmail = sanitizeInput.email(emailInput?.value || '');
+    const handleEmailClick = async (e: Event) => {
+      e.preventDefault();
 
-      // Validar que los datos existan después de sanitizar
+      if (contactForm.checkValidity()) {
+        sendEmail.disabled = true;
+        sendEmail.textContent = 'Enviando...';
+        
+        try {
+          await handleQuoteSubmit(e);
+        } catch (error) {
+          console.error('[FinalStep] Error sending quote:', error);
+          alert('Hubo un error al enviar la cotización. Por favor intenta nuevamente.');
+        } finally {
+          sendEmail.disabled = false;
+          sendEmail.textContent = 'Enviar Cotización';
+        }
+      } else {
+        contactForm.reportValidity();
+      }
+    };
+
+    const handleBookingClick = () => {
+      if (!contactForm.checkValidity()) {
+        contactForm.reportValidity();
+        return;
+      }
+      
+      const nameInput = document.getElementById("userName") as HTMLInputElement | null;
+      const emailInput = document.getElementById("userEmail") as HTMLInputElement | null;
+      const companyInput = document.getElementById("companyName") as HTMLInputElement | null;
+      const phoneInput = document.getElementById("userPhone") as HTMLInputElement | null;
+
+      if (!nameInput || !emailInput) {
+        console.error('[FinalStep] Required form inputs not found');
+        alert('Error: No se pudieron obtener los datos del formulario');
+        return;
+      }
+
+      const clientName = sanitizeInput.name(nameInput.value || '');
+      const clientEmail = sanitizeInput.email(emailInput.value || '');
+      const clientCompany = sanitizeInput.company(companyInput?.value || '');
+      const clientPhone = sanitizeInput.phone(phoneInput?.value || '');
+
       if (!clientName || !clientEmail) {
         alert('Por favor completa tu nombre y email correctamente');
         return;
       }
 
-      // Pasar datos al modal
-      window.openBookingModal({
-        name: clientName,
-        email: clientEmail
-      });
-    } else {
-      contactForm.reportValidity();
-    }
-  });
+      if (typeof window.openBookingModal !== 'function') {
+        console.error('[FinalStep] openBookingModal function not found');
+        alert('Error: No se pudo abrir el modal de reserva');
+        return;
+      }
+
+      try {
+        window.openBookingModal({
+          name: clientName,
+          email: clientEmail,
+          company: clientCompany,
+          phone: clientPhone
+        });
+      } catch (error) {
+        console.error('[FinalStep] Error opening booking modal:', error);
+        alert('Hubo un error al abrir el modal. Por favor intenta nuevamente.');
+      }
+    };
+
+    sendEmail.addEventListener("click", handleEmailClick);
+    openBookingBtn.addEventListener("click", handleBookingClick);
+
+    document.addEventListener('astro:before-preparation', cleanup, { once: true });
+    
+    return cleanup;
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeFinalStep);
+  } else {
+    initializeFinalStep();
+  }
 </script>
