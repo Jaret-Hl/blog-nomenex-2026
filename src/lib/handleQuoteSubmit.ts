@@ -89,7 +89,7 @@ export async function handleQuoteSubmit(event: Event) {
     quote: quote, // Agregar resultado de cotización
     timestamp: new Date().toISOString(),
   };
-  console.log("Quote Data to be sent via email:", quoteData);
+  // console.log("Quote Data to be sent via email:", quoteData);
   /* 
   
   // Aquí puedes agregar el envío real del email
