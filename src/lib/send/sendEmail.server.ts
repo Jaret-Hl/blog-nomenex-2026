@@ -1,35 +1,36 @@
-
 import { getMicrosoftToken } from "../microsoftAuth.server";
+import { getEnv } from "../config/env.server";
+import { validarCorreo } from "../quote/validacion";
 
 interface SendMailParams {
   to: string;
   subject: string;
   html: string;
+  replyTo?: string;
 }
 
-export async function sendMail({ to, subject, html }: SendMailParams) {
+export async function sendMail({ to, subject, html, replyTo }: SendMailParams) {
+  const errorDestino = validarCorreo(to);
+  if (errorDestino) throw new Error(`Destinatario inválido: ${to}`);
+  if (replyTo && validarCorreo(replyTo)) throw new Error("Correo de respuesta inválido");
+
+  const env = getEnv();
   const token = await getMicrosoftToken();
 
   const response = await fetch(
-    `https://graph.microsoft.com/v1.0/users/${import.meta.env.MS_USER_EMAIL}/sendMail`,
+    `https://graph.microsoft.com/v1.0/users/${env.MS_USER_EMAIL}/sendMail`,
     {
-      method: 'POST',
+      method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
         message: {
           subject,
-          body: {
-            contentType: 'HTML',
-            content: html,
-          },
-          toRecipients: [
-            {
-              emailAddress: { address: to },
-            },
-          ],
+          body: { contentType: "HTML", content: html },
+          ...(replyTo ? { replyToRecipients: [{ emailAddress: { address: replyTo } }] } : {}),
+          toRecipients: [{ emailAddress: { address: to } }],
         },
         saveToSentItems: true,
       }),

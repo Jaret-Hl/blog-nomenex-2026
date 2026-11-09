@@ -6,6 +6,7 @@ export interface WizardData {
     locations: string;
   };
   packageId?: string;
+  complementos?: string[];
   biometric?: {
     bioRequired: boolean;
     bioCount?: number;

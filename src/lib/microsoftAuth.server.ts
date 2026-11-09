@@ -1,10 +1,12 @@
-// import { AZURE_TENANT_ID } from './../../.astro/env.d';
-export async function getMicrosoftToken() {
-  const url = `https://login.microsoftonline.com/${import.meta.env.AZURE_TENANT_ID}/oauth2/v2.0/token`;
+import { getEnv } from "./config/env.server";
+
+export async function getMicrosoftToken(): Promise<string> {
+  const env = getEnv();
+  const url = `https://login.microsoftonline.com/${env.AZURE_TENANT_ID}/oauth2/v2.0/token`;
 
   const body = new URLSearchParams({
-    client_id: import.meta.env.AZURE_CLIENT_ID!,
-    client_secret: import.meta.env.AZURE_CLIENT_SECRET!,
+    client_id: env.AZURE_CLIENT_ID,
+    client_secret: env.AZURE_CLIENT_SECRET,
     scope: "https://graph.microsoft.com/.default",
     grant_type: "client_credentials",
   });
