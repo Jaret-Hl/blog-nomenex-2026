@@ -1,3 +1,5 @@
+import { getCurrentTimeInMexicoCity, getTodayInMexicoCity } from './dateUtils';
+
 export interface TimeSlot {
   time: string;
   available: boolean;
@@ -18,12 +20,29 @@ const WORK_START_HOUR = 9;
 const WORK_END_HOUR = 18;
 const SLOT_INTERVAL_MINUTES = 30;
 
-export function generateTimeSlots(scheduleItems: ScheduleItem[]): TimeSlot[] {
+export function generateTimeSlots(scheduleItems: ScheduleItem[], selectedDate: string): TimeSlot[] {
   const slots: TimeSlot[] = [];
+  const today = getTodayInMexicoCity();
+  const isToday = selectedDate === today;
+  const currentTime = isToday ? getCurrentTimeInMexicoCity() : null;
 
   for (let hour = WORK_START_HOUR; hour < WORK_END_HOUR; hour++) {
     for (let minute of [0, SLOT_INTERVAL_MINUTES]) {
       const time = formatTime(hour, minute);
+      
+      // Si es hoy, filtrar horarios que ya pasaron
+      if (isToday && currentTime) {
+        const slotHour = hour;
+        const slotMinute = minute;
+        
+        // Si la hora ya pasó, marcar como no disponible
+        if (slotHour < currentTime.hour || 
+            (slotHour === currentTime.hour && slotMinute <= currentTime.minute)) {
+          slots.push({ time, available: false });
+          continue;
+        }
+      }
+      
       const available = !isSlotBusy(time, scheduleItems);
       slots.push({ time, available });
     }

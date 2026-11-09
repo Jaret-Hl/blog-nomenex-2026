@@ -42,7 +42,7 @@ export class BookingModalManager {
       closeBtn: document.getElementById("close-modal"),
       cancelBtn: document.getElementById("cancel-booking"),
       confirmBtn: document.getElementById(
-        "confirm-booking"
+        "confirm-booking",
       ) as HTMLButtonElement,
       dateInput: document.getElementById("booking-date") as HTMLInputElement,
       slotsContainer: document.getElementById("slots-container"),
@@ -66,10 +66,10 @@ export class BookingModalManager {
     this.elements.cancelBtn?.addEventListener("click", () => this.closeModal());
     this.elements.overlay?.addEventListener("click", () => this.closeModal());
     this.elements.dateInput?.addEventListener("change", (e) =>
-      this.handleDateChange(e)
+      this.handleDateChange(e),
     );
     this.elements.confirmBtn?.addEventListener("click", () =>
-      this.confirmBooking()
+      this.confirmBooking(),
     );
   }
 
@@ -119,7 +119,7 @@ export class BookingModalManager {
 
     try {
       const scheduleItems = await this.fetchAvailability(date);
-      const slots = generateTimeSlots(scheduleItems);
+      const slots = generateTimeSlots(scheduleItems, date);
       this.renderSlots(slots);
     } catch (error) {
       this.showErrorState();
@@ -152,6 +152,14 @@ export class BookingModalManager {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ date }),
     });
+
+    if (!res.ok) {
+      const errorData = await res.json();
+      if (errorData.error === "NO_WORKING_DAY") {
+        throw new Error(errorData.message);
+      }
+      throw new Error("Error al cargar disponibilidad");
+    }
 
     const data: AvailabilityResponse = await res.json();
     return data.value?.[0]?.scheduleItems || [];
@@ -189,7 +197,7 @@ export class BookingModalManager {
   private attachSlotListeners(): void {
     document.querySelectorAll(".slot-btn:not([disabled])").forEach((btn) => {
       btn.addEventListener("click", () =>
-        this.handleSlotSelection(btn as HTMLButtonElement)
+        this.handleSlotSelection(btn as HTMLButtonElement),
       );
     });
   }
@@ -201,7 +209,7 @@ export class BookingModalManager {
         "border-blue-600",
         "bg-blue-600",
         "text-white",
-        "scale-105"
+        "scale-105",
       );
       b.classList.add("border-gray-300", "dark:border-gray-600");
     });
@@ -212,7 +220,7 @@ export class BookingModalManager {
       "border-blue-600",
       "bg-blue-600",
       "text-white",
-      "scale-105"
+      "scale-105",
     );
 
     this.state.selectedSlot = btn.getAttribute("data-time");
@@ -235,10 +243,10 @@ export class BookingModalManager {
 
     // Construir fechas ISO 8601 válidas
     const startISO = new Date(
-      `${this.state.selectedDate}T${this.state.selectedSlot}:00`
+      `${this.state.selectedDate}T${this.state.selectedSlot}:00`,
     ).toISOString();
     const endISO = new Date(
-      calculateEndTime(this.state.selectedDate, this.state.selectedSlot)
+      calculateEndTime(this.state.selectedDate, this.state.selectedSlot),
     ).toISOString();
 
     try {
@@ -248,19 +256,19 @@ export class BookingModalManager {
       const result = await this.submitBooking(
         startISO,
         endISO,
-        this.state.clientData
+        this.state.clientData,
       );
 
       if (result.success) {
         // Limpiar cookies del wizard
-        await actions.clearWizard();
-        
+        try { sessionStorage.removeItem("nomenex-cotizacion"); } catch { /* sin almacenamiento disponible */ }
+
         alert(
           result.message ||
-            "¡Sesión agendada exitosamente! Recibirás un correo de confirmación."
+            "¡Sesión agendada exitosamente! Recibirás un correo de confirmación.",
         );
         this.closeModal();
-        
+
         // Redirigir a la página principal sin permitir volver atrás
         // replace() reemplaza la entrada actual del historial
         window.location.replace("/");
@@ -281,7 +289,7 @@ export class BookingModalManager {
   private async submitBooking(
     start: string,
     end: string,
-    clientData: ClientData
+    clientData: ClientData,
   ): Promise<{ success: boolean; message?: string }> {
     try {
       const { data, error } = await actions.bookSession({
