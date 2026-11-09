@@ -1,8 +1,24 @@
 import { getMicrosoftToken } from "../../lib/microsoftAuth.server";
+import { isRestDay } from "../../utils/dateUtils";
 import type { APIContext } from "astro";
 
 export async function POST({ request }: APIContext) {
   const { date } = await request.json();
+  
+  // Validar que no sea día de descanso
+  if (isRestDay(date)) {
+    return new Response(
+      JSON.stringify({
+        error: 'NO_WORKING_DAY',
+        message: 'No hay horarios disponibles en días de descanso'
+      }),
+      { 
+        status: 400,
+        headers: { 'Content-Type': 'application/json' }
+      }
+    );
+  }
+  
   const token = await getMicrosoftToken();
 
   // Usar zona horaria de México
