@@ -1,7 +1,8 @@
 <footer class="site-footer">
   <div class="site-footer-in">
-    <a href="/" aria-label="NOMENEX, inicio">
-      <img src="/logo-naranja.png" alt="NOMENEX" class="h-9 w-auto" />
+    <a href="/" class="footer-logo" aria-label="NOMENEX, inicio">
+      <img class="logo-movil" src="/brand/isotipo-nomenex.svg" alt="NOMENEX" width="84" height="84" />
+      <img class="logo-escritorio" src="/brand/logotipo-nomenex.svg" alt="NOMENEX" width="431" height="84" />
     </a>
     <nav>
       <ul class="site-footer-links">
@@ -34,6 +35,13 @@
     align-items: center;
     flex-wrap: wrap;
     gap: 16px;
+  }
+  .footer-logo img { display: block; height: 36px; width: auto; }
+  .footer-logo .logo-movil { width: 36px; }
+  .footer-logo .logo-escritorio { display: none; }
+  @media (min-width: 640px) {
+    .footer-logo .logo-movil { display: none; }
+    .footer-logo .logo-escritorio { display: block; }
   }
   .site-footer-links {
     display: flex;

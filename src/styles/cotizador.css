@@ -11,9 +11,16 @@
 /* Encabezado */
 .top { background: var(--blanco); border-bottom: 1px solid var(--linea); position: sticky; top: 0; z-index: 5; box-shadow: 0 2px 12px rgba(31, 42, 55, .06); }
 .top .in { max-width: 1180px; margin: 0 auto; padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; gap: 16px; }
-.logo { display: flex; align-items: center; }
-.logo img { height: 46px; width: auto; display: block; }
-.cta { padding: 10px 18px; font-size: 14px; }
+.logo { display: flex; align-items: center; flex: 0 0 auto; }
+.logo img { display: block; height: auto; max-width: 100%; }
+.logo .logo-movil { width: 40px; height: 40px; }
+.logo .logo-escritorio { display: none; width: auto; height: 44px; }
+@media (min-width: 640px) {
+  .logo .logo-movil { display: none; }
+  .logo .logo-escritorio { display: block; }
+}
+@media (min-width: 900px) { .logo .logo-escritorio { height: 52px; } }
+.cta { padding: 10px 18px; font-size: 14px; white-space: nowrap; }
 
 /* Banner */
 .hero { background: linear-gradient(120deg, var(--azul-osc) 0%, var(--azul) 60%, #4F93D6 100%); color: #fff; position: relative; overflow: hidden; }
