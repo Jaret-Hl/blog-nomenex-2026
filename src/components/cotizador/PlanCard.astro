@@ -1,0 +1,39 @@
+---
+import { ICONOS } from "./iconos";
+import type { Paquete, Servicio } from "@/lib/cotizador/catalogo";
+
+interface Props {
+  paquete: Paquete;
+  grupos: Servicio[];
+}
+
+const { paquete, grupos } = Astro.props;
+---
+
+<article
+  class:list={["plan", paquete.destacado && "destacado"]}
+  role="radio"
+  aria-checked="false"
+  tabindex="0"
+  data-plan={paquete.id}
+  data-nombre={paquete.nombreCorto}
+>
+  {paquete.destacado && <span class="insignia">Recomendado</span>}
+  <span class="etiqueta">{paquete.etiqueta}</span>
+  <h2>{paquete.nombre}</h2>
+  <p class="promesa">{paquete.promesa}</p>
+  <p class="precio" data-precio={paquete.id}></p>
+  {paquete.base && <p class="base">{paquete.base}</p>}
+
+  {grupos.map((g) => (
+    <div class="grupo">
+      <h3><span class="ico" set:html={ICONOS[g.icono] ?? ""} />{g.grupo}</h3>
+      <ul>
+        {g.items.map((i) => <li>{i.texto}</li>)}
+      </ul>
+    </div>
+  ))}
+
+  <div class="espacio"></div>
+  <button class="elegir" type="button" tabindex="-1">Elegir {paquete.nombreCorto}</button>
+</article>

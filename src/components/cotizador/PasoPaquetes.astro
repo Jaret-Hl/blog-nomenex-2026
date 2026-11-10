@@ -1,0 +1,24 @@
+---
+import PlanCard from "./PlanCard.astro";
+import ComparativaTabla from "./ComparativaTabla.astro";
+import { paquetes, gruposParaNivel } from "@/lib/cotizador/catalogo";
+---
+
+<h1>Elige el paquete que <span>acompaña a tu empresa</span></h1>
+<p class="intro">Cada paquete incluye todo lo del anterior. Precios mensuales para <b id="nTxt">25</b> colaboradores, más IVA.</p>
+
+<section class="planes" role="radiogroup" aria-label="Paquetes NOMENEX">
+  {paquetes.map((p) => <PlanCard paquete={p} grupos={gruposParaNivel(p.nivel)} />)}
+</section>
+
+<div class="barra">
+  <h2>Compara los paquetes</h2>
+  <button class="toggle" type="button" aria-expanded="false" aria-controls="tabla">Ver comparativo completo</button>
+</div>
+<ComparativaTabla />
+
+<p class="nota">Precios mensuales más IVA. En el comparativo, toca <b>Agregar</b> en un complemento para sumarlo al precio de los paquetes.</p>
+<div class="acciones">
+  <button class="btn sec" type="button" data-ir="1">Volver</button>
+  <button class="btn pri" type="button" id="cont2" data-ir="3" disabled>Continuar</button>
+</div>

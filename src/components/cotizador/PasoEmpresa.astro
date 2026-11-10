@@ -1,0 +1,32 @@
+---
+import { MAX_COLABORADORES } from "@/lib/quote/validacion";
+---
+
+<h1>Cotiza tu servicio de <span>nómina</span></h1>
+<p class="intro">Responde dos preguntas y te mostramos el precio de cada paquete al momento.</p>
+
+<div class="card">
+  <p class="q"><span>1.</span> ¿Cuántos colaboradores tiene tu empresa?</p>
+  <p class="ayuda fuerte">Mueve la barra o escribe el número exacto.</p>
+  <div class="slider">
+    <input type="range" id="rango" min="1" max="200" value="25" aria-label="Colaboradores" />
+    <input type="number" id="num" min="1" max={MAX_COLABORADORES} value="25" aria-label="Número exacto de colaboradores" />
+  </div>
+  <div class="marcas"><span>1</span><span>50</span><span>100</span><span>150</span><span>200</span></div>
+  <p class="aviso" id="aviso200">Más de 200 colaboradores: preparamos una cotización a la medida. Continúa y agenda una sesión con nuestro equipo.</p>
+</div>
+
+<div class="card">
+  <p class="q"><span>2.</span> ¿En cuántas sedes, centros de trabajo o sucursales?</p>
+  <p class="ayuda fuerte">Registro de sedes, centros de trabajo o sucursales.</p>
+  <select id="sedes" aria-label="Número de sedes, centros de trabajo o sucursales">
+    <option value="1">1</option>
+    <option value="2">2</option>
+    <option value="3">3</option>
+    <option value="4">4 a 5</option>
+    <option value="6">Más de 5</option>
+  </select>
+  <p class="chip" id="sedesTxt">Una sede: sin cargo adicional</p>
+</div>
+
+<div class="acciones"><span></span><button class="btn pri" type="button" data-ir="2">Continuar</button></div>

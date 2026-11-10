@@ -1,0 +1,64 @@
+---
+---
+
+<h1>Tu <span>cotización</span></h1>
+<p class="intro">Revisa el resumen y déjanos tus datos para enviarte la propuesta formal.</p>
+
+<div class="res">
+  <div class="card">
+    <p class="q">Resumen</p>
+    <div class="linea"><span>Paquete elegido</span><b data-r="paquete">—</b></div>
+    <div class="linea"><span>Colaboradores</span><b data-r="colaboradores">—</b></div>
+    <div class="linea"><span>Sedes</span><b data-r="sedes">—</b></div>
+    <div class="linea"><span>Paquete</span><b data-r="paqueteP">—</b></div>
+    <div class="linea" id="rSedLin"><span data-r="sedesTxt">Sedes adicionales</span><b data-r="sedesP">—</b></div>
+    <div class="linea"><span>Complementos mensuales</span><b data-r="compP">—</b></div>
+    <div class="linea"><span>Subtotal mensual</span><b data-r="sub">—</b></div>
+    <div class="linea"><span>IVA 16%</span><b data-r="iva">—</b></div>
+    <div class="linea tot"><span>Total mensual</span><span data-r="total">—</span></div>
+    <p class="ayuda" style="margin-top:10px">Equivale a <b data-r="porColab">—</b> por colaborador al mes.</p>
+    <div class="linea" style="border-bottom:none"><span>Complementos elegidos</span></div>
+    <ul class="lista-comp" data-r="complementos"></ul>
+    <div data-r="unico"></div>
+  </div>
+
+  <div class="card">
+    <p class="q">Recibe tu cotización</p>
+    <form class="form" id="form" novalidate>
+      <label class="c">Nombre completo
+        <input type="text" name="nombre" id="fNom" autocomplete="name" maxlength="100" required />
+      </label>
+      <span class="error" data-error="nombre"></span>
+
+      <label class="c">Empresa
+        <input type="text" name="empresa" id="fEmp" autocomplete="organization" maxlength="150" required />
+      </label>
+      <span class="error" data-error="empresa"></span>
+
+      <label class="c">Correo electrónico
+        <input type="email" name="correo" id="fMail" autocomplete="email" maxlength="254" required />
+      </label>
+      <span class="error" data-error="correo"></span>
+
+      <label class="c">Teléfono (opcional)
+        <input type="tel" name="telefono" id="fTel" autocomplete="tel" placeholder="10 dígitos" maxlength="20" />
+      </label>
+      <span class="error" data-error="telefono"></span>
+
+      <label class="check">
+        <input type="checkbox" name="privacidad" id="fPriv" />
+        Acepto el aviso de privacidad para el tratamiento de mis datos personales.
+      </label>
+      <span class="error" data-error="privacidad"></span>
+
+      <input type="text" name="website" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true" />
+
+      <p class="error" id="fErr" role="alert"></p>
+      <button class="btn pri" type="submit" id="btnEnviar">Enviar cotización</button>
+      <button class="btn sec" type="button" id="abrirAgenda">Agendar una sesión</button>
+      <p class="ok-msg" id="fOk" role="status"></p>
+    </form>
+  </div>
+</div>
+
+<div class="acciones"><button class="btn sec" type="button" data-ir="3">Volver</button><span></span></div>

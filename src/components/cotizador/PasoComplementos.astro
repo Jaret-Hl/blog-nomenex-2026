@@ -1,0 +1,51 @@
+---
+import { PRECIOS, } from "@/config/precios";
+import { MAX_EQUIPOS } from "@/lib/quote/validacion";
+import { etiquetaComplemento } from "@/lib/cotizador/textos";
+
+const grupos = [...new Set(PRECIOS.complementos.map((k) => k.grupo))];
+---
+
+<h1>Suma <span>complementos</span> a tu paquete</h1>
+<p class="intro">Son opcionales. Toca un complemento para sumarlo; verás el precio actualizado al momento.</p>
+
+<div class="card barra-total" id="barraTotal"></div>
+
+<section class="comp" aria-labelledby="comp-t">
+  <div class="comp-head">
+    <span class="plus">PLUS</span>
+    <div>
+      <h2 id="comp-t">Complementos para cualquier paquete</h2>
+      <p>Opcionales. Los mensuales se suman al precio de tu paquete; la consultoría es un pago único.</p>
+    </div>
+  </div>
+  <div class="comp-grid" id="compGrid">
+    {grupos.map((g) => (
+      <div class="cg">
+        <h3>{g}</h3>
+        <ul>
+          {PRECIOS.complementos
+            .filter((k) => k.grupo === g)
+            .map((k) => (
+              <li data-comp={k.id} role="checkbox" aria-checked="false" tabindex="0">
+                <b>{k.nombre}</b>
+                <span>{k.descripcion}</span>
+                <span class="pr" data-pr={k.id}>{etiquetaComplemento(k)}</span>
+                {k.tipo === "equipo" && (
+                  <label class="bio">
+                    Equipos:
+                    <input type="number" min="1" max={MAX_EQUIPOS} value="1" id="bioN" aria-label="Número de equipos biométricos" />
+                  </label>
+                )}
+              </li>
+            ))}
+        </ul>
+      </div>
+    ))}
+  </div>
+</section>
+
+<div class="acciones">
+  <button class="btn sec" type="button" data-ir="2">Volver</button>
+  <button class="btn pri" type="button" data-ir="4">Continuar</button>
+</div>

@@ -1,0 +1,64 @@
+---
+import { PRECIOS } from "@/config/precios";
+import { servicios } from "@/lib/cotizador/catalogo";
+import { etiquetaComplemento } from "@/lib/cotizador/textos";
+
+const niveles = [1, 2, 3] as const;
+
+// Filas: encabezado de grupo y, después, cada servicio con el nivel desde el que se incluye.
+const filas: Array<{ tipo: "sec" | "item"; texto: string; desde?: number }> = [];
+servicios.forEach((s) => {
+  filas.push({ tipo: "sec", texto: s.grupo });
+  s.items.forEach((i) => filas.push({ tipo: "item", texto: i.corto ?? i.texto, desde: i.desde }));
+});
+
+const clase = (n: number) => (n === 2 ? "c col-dest" : "c");
+---
+
+<div class="tabla" id="tabla" hidden>
+  <table>
+    <thead>
+      <tr>
+        <th>Servicio</th>
+        <th class="c">Básico<br /><small>Esencial</small></th>
+        <th class="c col-dest">Profesional<br /><small>Corporativo</small></th>
+        <th class="c">Premium<br /><small>Estratégico</small></th>
+      </tr>
+    </thead>
+    <tbody>
+      {filas.map((f) =>
+        f.tipo === "sec" ? (
+          <tr class="sec"><td colspan="4">{f.texto}</td></tr>
+        ) : (
+          <tr>
+            <td>{f.texto}</td>
+            {niveles.map((n) => (
+              <td class={clase(n)}>
+                {f.desde! <= n ? (
+                  <span class="si" aria-label="Incluido">✓</span>
+                ) : (
+                  <span class="no" aria-label="No incluido">—</span>
+                )}
+              </td>
+            ))}
+          </tr>
+        )
+      )}
+      <tr class="sec"><td colspan="4">Complementos (opcionales, con costo adicional)</td></tr>
+      {PRECIOS.complementos.map((k) => (
+        <tr>
+          <td>
+            {k.nombre}
+            <br />
+            <small class="etq">{etiquetaComplemento(k)}</small>
+          </td>
+          {niveles.map((n) => (
+            <td class={clase(n)}>
+              <button type="button" class="op" data-comp={k.id} aria-pressed="false">+ Agregar</button>
+            </td>
+          ))}
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>

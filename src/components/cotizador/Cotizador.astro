@@ -1,0 +1,31 @@
+---
+import PasoEmpresa from "./PasoEmpresa.astro";
+import PasoPaquetes from "./PasoPaquetes.astro";
+import PasoComplementos from "./PasoComplementos.astro";
+import PasoResumen from "./PasoResumen.astro";
+import BookingModal from "../BookingModal.astro";
+import { PASOS } from "@/config/pasos";
+---
+
+<div class="cotizador">
+  <nav aria-label="Pasos de la cotización">
+    <ol class="pasos" id="pasos">
+      {PASOS.map((p) => (
+        <li data-p={p.id}><button type="button"><b>{p.id}</b>{p.label}</button></li>
+      ))}
+    </ol>
+  </nav>
+  <p class="aviso" id="avisoPaq" role="alert">Elige un paquete para continuar a Complementos y Resumen.</p>
+
+  <section class="vista" data-v="1"><PasoEmpresa /></section>
+  <section class="vista" data-v="2"><PasoPaquetes /></section>
+  <section class="vista" data-v="3"><PasoComplementos /></section>
+  <section class="vista" data-v="4"><PasoResumen /></section>
+</div>
+
+<BookingModal />
+
+<script>
+  import { initCotizador } from "@/lib/cotizador/app";
+  initCotizador();
+</script>
