@@ -89,4 +89,33 @@ const { open = false } = Astro.props;
 
   const modalManager = new BookingModalManager();
   modalManager.init();
+
+  // Dentro del <script> existente, después de setupDateInput
+function isRestDay(dateStr: string) {
+  const date = new Date(dateStr + 'T12:00:00');
+  const day = date.getDay();
+  
+  // Fines de semana
+  if (day === 0 || day === 6) return true;
+  
+  // Días festivos
+  const holidays = [
+    '2026-01-01', '2026-02-02', '2026-03-16',
+    '2026-05-01', '2026-09-16', '2026-11-02',
+    '2026-11-16', '2026-12-25'
+  ];
+  
+  return holidays.includes(dateStr);
+}
+
+// Validar cuando cambie la fecha
+document.getElementById('booking-date')?.addEventListener('change', (e) => {
+  const target = e.target as HTMLInputElement;
+  if (!target) return;
+  const date = target.value;
+  if (isRestDay(date)) {
+    alert('No hay horarios disponibles en días de descanso');
+    target.value = '';
+  }
+});
 </script>

@@ -5,113 +5,51 @@ interface Props {
     nombre: string;
     etiqueta: string;
     descripcion?: string;
-    caracteristicas: Array<{
-      label: string;
-      incluido: boolean;
-      nota?: string;
-    }>;
-    ui?: {
-      highlight?: boolean;
-    };
+    caracteristicas: Array<{ label: string; incluido: boolean; nota?: string }>;
   };
   isSelected: boolean;
 }
 
 const { paquete, isSelected } = Astro.props;
+// Igual que el cotizador: el Profesional lleva la insignia de recomendado
+const recomendado = paquete.id === "profesional";
+const incluidos = paquete.caracteristicas.filter((c) => c.incluido);
 ---
 
-<div
+<article
   data-package-id={paquete.id}
-  class={`paqueteCard group mb-3 p-3 sm:p-4 border-2 rounded-xl cursor-pointer transition-all duration-200 ${
-    isSelected
-      ? "border-yellow-500 ring-2 ring-yellow-400 shadow-lg bg-white dark:bg-gray-800"
-      : "border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-yellow-300 hover:shadow-md"
-  }`}
+  role="radio"
+  tabindex="0"
+  aria-checked={String(isSelected)}
+  class:list={[
+    "plan paqueteCard",
+    recomendado && "destacado",
+    isSelected && "activo",
+  ]}
 >
-  <div class="flex items-start sm:items-center justify-between gap-2 sm:gap-4">
-    <div class="flex items-start sm:items-center gap-2 sm:gap-3 flex-1 min-w-0">
-      <div class="min-w-0 flex-1">
-        <div class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
-          <h3
-            class="font-bold text-sm sm:text-base text-slate-800 truncate dark:text-white"
-          >
-            {paquete.nombre}
-          </h3>
-          {
-            paquete.ui?.highlight && (
-              <span class="bg-green-100 text-green-600 text-[10px] font-bold px-2 py-0.5 rounded uppercase w-fit">
-                Especial
-              </span>
-            )
-          }
-        </div>
-        <p
-          class="text-[11px] sm:text-xs text-yellow-500 font-bold line-clamp-2 sm:line-clamp-1"
-        >
-          {paquete.etiqueta}
-        </p>
-        {
-          paquete.descripcion && (
-            <p
-              class="text-[10px] sm:text-xs text-slate-500 dark:text-white/70 mt-1 sm:mt-0.5 line-clamp-2"
-            >
-              {paquete.descripcion}
-            </p>
-          )
-        }
-      </div>
-    </div>
+  {recomendado && <span class="insignia">Recomendado</span>}
+  <span class="etiqueta">{paquete.etiqueta}</span>
+  <h2>{paquete.nombre}</h2>
+  {paquete.descripcion && <p class="promesa">{paquete.descripcion}</p>}
 
-    <button
-      type="button"
-      class="toggle-details text-[10px] sm:text-[11px] font-bold text-blue-600 hover:text-blue-800 flex items-center gap-1 bg-blue-50 px-2 sm:px-3 py-1.5 rounded-lg transition-all active:scale-95 flex-shrink-0"
-    >
-      <span class="hidden sm:inline">Ver detalles</span>
-      <span class="sm:hidden">Ver</span>
-      <svg
-        class="w-3 h-3 transition-transform duration-300"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-      >
-        <path
-          d="M19 9l-7 7-7-7"
-          stroke-width="3"
-          stroke-linecap="round"
-          stroke-linejoin="round"></path>
-      </svg>
-    </button>
+  <div class="precio">
+    Mensual, antes de sedes y complementos
+    <b data-precio-paquete={paquete.id}>—</b>
+    <span class="por">+ IVA</span>
   </div>
 
-  <div
-    class="details-content hidden mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-slate-200 dark:border-gray-700"
-  >
-    <p
-      class="text-[10px] font-semibold text-slate-400 dark:text-white/60 uppercase mb-2"
-    >
-      Incluye:
-    </p>
-    <ul
-      class="grid grid-cols-1 gap-y-2 text-[11px] sm:text-xs text-slate-600 dark:text-white/70"
-    >
-      {
-        paquete.caracteristicas
-          .filter((caracteristica) => caracteristica.incluido)
-          .map((caracteristica) => (
-        <li class="flex items-start gap-2">
-          <span class="flex-shrink-0 mt-0.5">✓</span>
-          <span>
-            {caracteristica.label}
-            {caracteristica.nota && (
-          <span class="text-[10px] text-slate-400 dark:text-white/60">
-            {" "}
-            ({caracteristica.nota})
-          </span>
-            )}
-          </span>
+  <div class="grupo">
+    <h3>Incluye</h3>
+    <ul>
+      {incluidos.map((c) => (
+        <li>
+          {c.label}
+          {c.nota && <small> ({c.nota})</small>}
         </li>
-          ))
-      }
+      ))}
     </ul>
   </div>
-</div>
+
+  <div class="espacio"></div>
+  <button type="button" class="elegir">{isSelected ? "Seleccionado" : "Elegir"}</button>
+</article>
