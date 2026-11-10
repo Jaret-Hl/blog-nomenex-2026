@@ -1,12 +1,40 @@
-import { sendMail } from '@/lib/send/sendEmail.server';
-import { defineAction } from 'astro:actions';
-import { z } from 'astro:schema';
-import { ClientDataManager } from '@/lib/clientDataManager';
-import { CalendarService } from '@/lib/calendar/calendarService';
+import { defineAction, ActionError } from "astro:actions";
+import { z } from "astro:schema";
+import { randomBytes } from "node:crypto";
+import { ClientDataManager } from "@/lib/clientDataManager";
+import { CalendarService } from "@/lib/calendar/calendarService";
+import { validarHorario } from "@/lib/calendar/horario";
+import { sendMail } from "@/lib/send/sendEmail.server";
+import { getEnv } from "@/lib/config/env.server";
+import { revisarSolicitud } from "@/lib/security/proteccion.server";
+import { validarCotizacion, type CotizacionInput } from "@/lib/quote/validacion";
+import { cotizar } from "@/lib/quote/mapeo";
+import { generarIcs } from "@/lib/mail/ics";
+import {
+  buildAsesoriaCliente,
+  buildAsesoriaInterno,
+  asuntoAsesoriaCliente,
+  asuntoAsesoriaInterno,
+  type DatosAsesoria,
+} from "@/lib/mail/asesoria";
 
+const cotizacionSchema = z
+  .object({
+    colaboradores: z.coerce.number(),
+    sedes: z.string().max(4),
+    paquete: z.string().max(40).nullable(),
+    complementos: z.array(z.string().max(40)).max(50),
+    equipos: z.coerce.number(),
+  })
+  .optional();
+
+function generarFolio(): string {
+  const fecha = new Date().toISOString().slice(0, 10).replace(/-/g, "");
+  return `AS-${fecha}-${randomBytes(3).toString("hex").toUpperCase()}`;
+}
 
 export const bookSession = defineAction({
-  accept: 'json',
+  accept: "json",
   input: z.object({
     start: z.string().datetime(),
     end: z.string().datetime(),
@@ -14,99 +42,99 @@ export const bookSession = defineAction({
     clientEmail: z.string().email(),
     clientCompany: z.string().optional(),
     clientPhone: z.string().optional(),
+    cotizacion: cotizacionSchema, // cotización que el cliente armó en el cotizador (opcional)
   }),
-  handler: async ({ start, end, clientName, clientEmail, clientCompany, clientPhone }) => {
-    // Validar y sanitizar datos del cliente
-    const validatedClient = ClientDataManager.validate({
-      name: clientName,
-      email: clientEmail,
-      company: clientCompany,
-      phone: clientPhone,
+  handler: async (input, ctx) => {
+    const env = getEnv();
+    const zona = env.MS_TIMEZONE;
+
+    const cliente = ClientDataManager.validate({
+      name: input.clientName,
+      email: input.clientEmail,
+      company: input.clientCompany,
+      phone: input.clientPhone,
+    });
+    if (!cliente.isValid) {
+      throw new ActionError({ code: "BAD_REQUEST", message: `Datos inválidos: ${cliente.errors?.join(", ")}` });
+    }
+
+    const inicio = new Date(input.start);
+    const fin = new Date(input.end);
+    const motivo = validarHorario(inicio, fin, zona);
+    if (motivo) throw new ActionError({ code: "BAD_REQUEST", message: motivo });
+
+    const ip = ctx.request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "desconocida";
+    const seguridad = await revisarSolicitud({ ip, correo: cliente.email, accion: "asesoria" });
+    if (!seguridad.ok) throw new ActionError({ code: "TOO_MANY_REQUESTS", message: seguridad.mensaje });
+
+    // La cotización se vuelve a validar y recalcular: no se confía en el navegador.
+    let cotizacionVerificada: DatosAsesoria["cotizacion"] = null;
+    if (input.cotizacion) {
+      const v = validarCotizacion(input.cotizacion as CotizacionInput);
+      if (v.ok) cotizacionVerificada = { cotizacion: v.valor, quote: cotizar(v.valor) };
+    }
+
+    // Evento en Teams SIN invitados: así Microsoft no envía su propia invitación.
+    // El cliente recibe un único correo con el enlace, el resumen y el archivo .ics.
+    const evento = CalendarService.buildBookingEvent(input.start, input.end, cliente);
+    evento.attendees = [];
+    const calendario = await CalendarService.createEvent(evento);
+    if (!calendario.success) {
+      console.error("[bookSession] Error al crear evento:", calendario.error);
+      throw new ActionError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "No pudimos agendar tu sesión. Intenta de nuevo en unos minutos.",
+      });
+    }
+
+    const folio = generarFolio();
+    const datos: DatosAsesoria = {
+      folio,
+      inicio,
+      fin,
+      zona,
+      contacto: {
+        nombre: cliente.name,
+        empresa: cliente.company || undefined,
+        correo: cliente.email,
+        telefono: cliente.phone || undefined,
+      },
+      joinUrl: calendario.joinUrl,
+      cotizacion: cotizacionVerificada,
+    };
+
+    const ics = generarIcs({
+      uid: `${folio}@nomenex`,
+      inicio: input.start,
+      fin: input.end,
+      titulo: evento.title,
+      descripcion: `Asesoría NOMENEX · Folio ${folio}${calendario.joinUrl ? `\nUnirse: ${calendario.joinUrl}` : ""}`,
+      url: calendario.joinUrl,
     });
 
-    if (!validatedClient.isValid) {
-      throw new Error(`Datos inválidos: ${validatedClient.errors?.join(', ')}`);
-    }
-
     try {
-      // 1. Crear evento en calendario
-      const event = CalendarService.buildBookingEvent(
-        start,
-        end,
-        validatedClient
-      );
-      
-// En bookSession.ts, después de crear el evento
-const calendarResult = await CalendarService.createEvent(event);
-
-if (!calendarResult.success) {
-  console.error('Error al crear evento:', calendarResult.error);
-  // Continuar con el proceso aunque falle el calendario
-}
-
-// 2. Enviar correo de confirmación
-await sendMail({
-  to: validatedClient.email,
-  subject: 'Sesión confirmada - Nomenex',
-  html: `
-    <h2>Hola ${validatedClient.name}</h2>
-    <p>Tu sesión ha sido agendada exitosamente.</p>
-    
-    <div style="background: #f3f4f6; padding: 16px; border-radius: 8px; margin: 20px 0;">
-      <h3 style="margin-top: 0;">📋 Detalles de tu sesión</h3>
-      
-      <p><strong>👤 Nombre:</strong> ${validatedClient.name}</p>
-      ${validatedClient.company ? `<p><strong>🏢 Empresa:</strong> ${validatedClient.company}</p>` : ''}
-      <p><strong>📧 Email:</strong> ${validatedClient.email}</p>
-      ${validatedClient.phone ? `<p><strong>📱 Teléfono:</strong> ${validatedClient.phone}</p>` : ''}
-      
-      <hr style="border: none; border-top: 1px solid #d1d5db; margin: 16px 0;">
-      
-      <p><strong>📅 Fecha y hora:</strong></p>
-      <p style="font-size: 16px; margin: 8px 0;">${new Date(start).toLocaleString('es-MX', { 
-        timeZone: import.meta.env.MS_TIMEZONE,
-        dateStyle: 'full',
-        timeStyle: 'short'
-      })}</p>
-      
-      <p><strong>⏱️ Duración:</strong> ${calculateDuration(start, end)} minutos</p>
-      
-      ${calendarResult.joinUrl ? `
-        <p style="margin-top: 16px;">
-          <a href="${calendarResult.joinUrl}" 
-             style="background: #0078d4; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; display: inline-block;">
-            🎥 Unirse a la reunión de Teams
-          </a>
-        </p>
-      ` : ''}
-    </div>
-
-    <p>Recibirás un recordatorio 24 horas antes de tu sesión.</p>
-    
-    <p style="color: #666; font-size: 12px; margin-top: 20px;">
-      Zona horaria: ${import.meta.env.MS_TIMEZONE}
-    </p>
-  `,
-});
-
-      return {
-        success: true,
-        calendarCreated: calendarResult.success,
-        message: calendarResult.success
-          ? 'Sesión agendada y agregada al calendario'
-          : 'Sesión agendada (evento de calendario pendiente)',
-      };
+      await sendMail({
+        to: cliente.email,
+        subject: asuntoAsesoriaCliente(datos),
+        html: buildAsesoriaCliente(datos),
+        adjuntos: [{ nombre: "asesoria-nomenex.ics", tipo: "text/calendar", contenido: Buffer.from(ics).toString("base64") }],
+      });
+      await sendMail({
+        to: env.MS_QUOTE_NOTIFY_EMAIL ?? env.MS_USER_EMAIL,
+        subject: asuntoAsesoriaInterno(datos),
+        html: buildAsesoriaInterno(datos),
+        replyTo: cliente.email,
+      });
     } catch (error) {
-      console.error('Booking error:', error);
-      throw new Error(
-        error instanceof Error ? error.message : 'Error al procesar la reserva'
-      );
+      // La sesión ya existe en el calendario: no se marca como fallida.
+      console.error("[bookSession] Error enviando correos (la sesión sí se creó):", error);
     }
+
+    return {
+      success: true,
+      folio,
+      calendarCreated: true,
+      message: "Sesión agendada y agregada al calendario. Revisa tu correo para la confirmación.",
+    };
   },
 });
-
-function calculateDuration(start: string, end: string): number {
-  const startDate = new Date(start);
-  const endDate = new Date(end);
-  return Math.round((endDate.getTime() - startDate.getTime()) / 60000);
-}

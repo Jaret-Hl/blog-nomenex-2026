@@ -3,10 +3,11 @@ import { z } from "astro:schema";
 import { randomBytes } from "node:crypto";
 import { validarSolicitud } from "@/lib/quote/validacion";
 import { cotizar } from "@/lib/quote/mapeo";
-import { dentroDeLimite } from "@/lib/quote/rateLimit";
+import { enviadoRecientemente, marcarEnviado } from "@/lib/quote/rateLimit";
 import { buildClientEmail, buildInternalEmail, asuntoCliente, asuntoInterno } from "@/lib/quote/emailTemplates";
 import { sendMail } from "@/lib/send/sendEmail.server";
 import { getEnv } from "@/lib/config/env.server";
+import { revisarSolicitud } from "@/lib/security/proteccion.server";
 
 const entradaSchema = z.object({
   cotizacion: z.object({
@@ -24,6 +25,7 @@ const entradaSchema = z.object({
     privacidad: z.boolean(),
   }),
   website: z.string().max(200).optional().default(""), // campo trampa: debe ir vacío
+  captcha: z.string().max(2048).optional().default(""),
 });
 
 function generarFolio(): string {
@@ -36,7 +38,7 @@ export const sendQuote = defineAction({
   input: entradaSchema,
   handler: async (input, ctx) => {
     // Bots: respondemos éxito sin enviar nada.
-    if (input.website) return { success: true, folio: null };
+    if (input.website) return { success: true, folio: null, message: null };
 
     const solicitud = validarSolicitud(
       { ...input.cotizacion, paquete: input.cotizacion.paquete as never },
@@ -48,36 +50,58 @@ export const sendQuote = defineAction({
 
     const ip = ctx.request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "desconocida";
     const correo = solicitud.contacto.correo;
-    if (!dentroDeLimite(`ip:${ip}`) || !dentroDeLimite(`correo:${correo}`, 3)) {
-      throw new ActionError({
-        code: "TOO_MANY_REQUESTS",
-        message: "Recibimos varias solicitudes desde tu conexión. Intenta de nuevo en unos minutos.",
-      });
+
+    const seguridad = await revisarSolicitud({ ip, correo, accion: "cotizacion", captcha: input.captcha });
+    if (!seguridad.ok) {
+      throw new ActionError({ code: "TOO_MANY_REQUESTS", message: seguridad.mensaje });
     }
 
     const cotizacion = solicitud.cotizacion;
+    const claveDuplicado = `dup:${correo}:${JSON.stringify(cotizacion)}`;
+    if (enviadoRecientemente(claveDuplicado)) {
+      return {
+        success: true,
+        folio: null,
+        message: "Ya te enviamos esta cotización hace unos minutos. Revisa tu bandeja de entrada.",
+      };
+    }
+
+    let env;
+    try {
+      env = getEnv();
+    } catch (error) {
+      console.error("[sendQuote] Configuración de correo:", error);
+      throw new ActionError({ code: "INTERNAL_SERVER_ERROR", message: "El servicio de correo no está disponible. Intenta más tarde." });
+    }
+
     const quote = cotizar(cotizacion);
     const folio = generarFolio();
     const datos = { folio, contacto: solicitud.contacto, cotizacion, quote };
 
+    // 1) Al cliente: es lo que el cliente espera recibir. Si falla, sí se informa.
     try {
-      const env = getEnv();
-      // Primero a NOMENEX: el lead nunca se pierde aunque falle el correo al cliente.
-      await sendMail({
-        to: env.MS_QUOTE_NOTIFY_EMAIL ?? env.MS_USER_EMAIL,
-        subject: asuntoInterno(folio, solicitud.contacto.empresa, cotizacion.colaboradores),
-        html: buildInternalEmail(datos),
-        replyTo: correo,
-      });
       await sendMail({ to: correo, subject: asuntoCliente(folio), html: buildClientEmail(datos) });
     } catch (error) {
-      console.error("[sendQuote] Error enviando correo:", error);
+      console.error("[sendQuote] No se pudo enviar al cliente:", error);
       throw new ActionError({
         code: "INTERNAL_SERVER_ERROR",
         message: "No pudimos enviar tu cotización. Intenta de nuevo en unos minutos.",
       });
     }
 
-    return { success: true, folio };
+    // 2) Aviso interno a NOMENEX: si falla, el cliente ya tiene su cotización; solo se registra.
+    try {
+      await sendMail({
+        to: env.MS_QUOTE_NOTIFY_EMAIL ?? env.MS_USER_EMAIL,
+        subject: asuntoInterno(folio, solicitud.contacto.empresa, cotizacion.colaboradores),
+        html: buildInternalEmail(datos),
+        replyTo: correo,
+      });
+    } catch (error) {
+      console.error("[sendQuote] Cotización enviada al cliente, pero falló el aviso interno:", error);
+    }
+
+    marcarEnviado(claveDuplicado);
+    return { success: true, folio, message: null };
   },
 });
