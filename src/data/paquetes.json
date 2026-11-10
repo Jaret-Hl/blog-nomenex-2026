@@ -1,155 +1,161 @@
-[
-  {
-    "id": "basico",
-    "nombre": "Paquete Básico",
-    "etiqueta": "Esencial",
-    "orden": 1,
-    "descripcion": "*Asesoría legal incluida para el paquete.",
-    "ui": {
-      "border": "border-gray-300",
-      "highlight": false
+{
+  "paquetes": [
+    {
+      "id": "basico",
+      "nivel": 1,
+      "nombre": "Paquete Básico",
+      "nombreCorto": "Básico",
+      "etiqueta": "Esencial",
+      "promesa": "Tu nómina calculada, timbrada y en cumplimiento, sin preocuparte.",
+      "destacado": false,
+      "base": null
     },
-    "caracteristicas": [
-      { "key": "nomina", "label": "Cálculo preciso de Nómina y obligaciones (Fonacot, ISN, ISR SYS)", "incluido": true },
-      { "key": "liquidaciones", "label": "Cálculo de Liquidaciones y Finiquitos", "incluido": true },
-      { "key": "imss_infonavit", "label": "Automatización de Cálculos IMSS e INFONAVIT", "incluido": true },
-      { "key": "timbrado", "label": "Timbrado de CFDI", "incluido": true },
-      { "key": "layout_pagos", "label": "Generación de Layout para Pagos", "incluido": true },
-      { "key": "asesoria_fiscal", "label": "Asesorías fiscales de nómina", "incluido": true },
-      { "key": "reportes_estandar", "label": "Reportes Estándar (CFDI, Opiniones de cumplimiento, acumulados)", "incluido": true },
-      { "key": "portal_empleado", "label": "Portal digital del empleado", "incluido": false, "nota": "*" },
-      { "key": "poliza_contable", "label": "Póliza contable", "incluido": false, "nota": "*" },
-      { "key": "reportes_repse", "label": "Reportes REPSE", "incluido": false, "nota": "*" },
-      { "key": "reportes_personalizados", "label": "Reportes Personalizados", "incluido": false, "nota": "*" },
-      { "key": "soporte_estandar", "label": "Soporte Estándar (Email, Teléfono)", "incluido": true, "detalle": "Tiempo de respuesta de 4 a 6 horas" },
-      { "key": "admin_plataformas", "label": "Administración de plataformas (Vales, fondo y caja de ahorro)", "incluido": false, "nota": "*" },
-      { "key": "reclutamiento", "label": "Reclutamiento y selección", "incluido": false, "nota": "*" },
-      { "key": "interaccion_social_web", "label": "Acceso a Plataforma Interacción social", "incluido": false, "nota": "*" },
-      { "key": "interaccion_social_app", "label": "Acceso a APP Interacción social", "incluido": false, "nota": "*" },
-      { "key": "incidencias_asistencia", "label": "Control de gestión de incidencias y asistencia", "incluido": false, "nota": "*" },
-      { "key": "flujo_vacaciones", "label": "Flujo de aprobación de vacaciones", "incluido": false, "nota": "*" },
-      { "key": "flujo_nomina", "label": "Flujo de aprobación de nómina", "incluido": false, "nota": "*" },
-      { "key": "credifacil", "label": "Credifacil", "incluido": true },
-      { "key": "biometricos", "label": "Biométricos", "incluido": false, "nota": "*" }
-    ],
-    "condiciones": {
-      "membresia_cadi": "A partir de 150 empleados",
-      "asesoria_legal": "Elaboración y firma de contratos, firma de renuncias voluntarias en las instalaciones del proveedor",
-      "ejecutivo_cuenta": "A partir de 150 empleados",
-      "implant_oficina": false,
-      "ubicaciones": "1",
-      "registros_patronales": "1",
-      "tipo_prestaciones": "De ley y caja de ahorro, fondo de ahorro y despensa"
+    {
+      "id": "profesional",
+      "nivel": 2,
+      "nombre": "Paquete Profesional",
+      "nombreCorto": "Profesional",
+      "etiqueta": "Corporativo",
+      "promesa": "Asesoría especializada y control de incidencias conectado a tu nómina.",
+      "destacado": true,
+      "base": "Todo lo del Paquete Básico, más:"
     },
-    "tabuladores": [
-      { "min": 1, "max": 5, "precio": 2000, "tipo": "mensual" },
-      { "min": 6, "max": 25, "precio": 250, "tipo": "unitario" },
-      { "min": 26, "max": 50, "precio": 235, "tipo": "unitario" },
-      { "min": 51, "max": 75, "precio": 220, "tipo": "unitario" },
-      { "min": 76, "max": 100, "precio": 210, "tipo": "unitario" }
-    ],
-    "addonsIncluidos": []
-  },
-  {
-    "id": "profesional",
-    "nombre": "Paquete Profesional",
-    "etiqueta": "Corporativo",
-    "orden": 2,
-    "descripcion": "*Asesoría legal incluida para el paquete.",
-    "ui": {
-      "border": "border-orange-600",
-      "highlight": true
+    {
+      "id": "premium",
+      "nivel": 3,
+      "nombre": "Paquete Premium",
+      "nombreCorto": "Premium",
+      "etiqueta": "Estratégico",
+      "promesa": "Gestión integral de tu capital humano, con respaldo y representación legal.",
+      "destacado": false,
+      "base": "Todo lo del Paquete Profesional, más:"
+    }
+  ],
+  "servicios": [
+    {
+      "grupo": "Nómina y timbrado",
+      "icono": "nomina",
+      "items": [
+        {
+          "texto": "Cálculo de nómina, retenciones de ISR y descuentos FONACOT",
+          "desde": 1
+        },
+        {
+          "texto": "Liquidaciones y finiquitos",
+          "desde": 1
+        },
+        {
+          "texto": "Timbrado de CFDI de nómina",
+          "desde": 1
+        },
+        {
+          "texto": "Layout para dispersión de pagos",
+          "desde": 1
+        }
+      ]
     },
-    "caracteristicas": [
-      { "key": "nomina", "label": "Cálculo preciso de Nómina y obligaciones (Fonacot, ISN, ISR SYS)", "incluido": true },
-      { "key": "liquidaciones", "label": "Cálculo de Liquidaciones y Finiquitos", "incluido": true },
-      { "key": "imss_infonavit", "label": "Automatización de Cálculos IMSS e INFONAVIT", "incluido": true },
-      { "key": "timbrado", "label": "Timbrado de CFDI", "incluido": true },
-      { "key": "layout_pagos", "label": "Generación de Layout para Pagos", "incluido": true },
-      { "key": "asesoria_fiscal", "label": "Asesorías fiscales de nómina", "incluido": true },
-      { "key": "reportes_estandar", "label": "Reportes Estándar (CFDI, Opiniones de cumplimiento, acumulados)", "incluido": true },
-      { "key": "portal_empleado", "label": "Portal digital del empleado", "incluido": true },
-      { "key": "poliza_contable", "label": "Póliza contable", "incluido": true },
-      { "key": "reportes_repse", "label": "Reportes REPSE", "incluido": false },
-      { "key": "reportes_personalizados", "label": "Reportes Personalizados", "incluido": true, "limite": "Limitado a 3 reportes" },
-      { "key": "soporte_estandar", "label": "Soporte Estándar (Email, Teléfono)", "incluido": true, "detalle": "Tiempo de respuesta de 2 a 4 horas" },
-      { "key": "admin_plataformas", "label": "Administración de plataformas (Vales, fondo y caja de ahorro)", "incluido": true },
-      { "key": "reclutamiento", "label": "Reclutamiento y selección", "incluido": false, "nota": "*" },
-      { "key": "interaccion_social_web", "label": "Acceso a Plataforma Interacción social", "incluido": true },
-      { "key": "interaccion_social_app", "label": "Acceso a APP Interacción social", "incluido": false, "nota": "*" },
-      { "key": "incidencias_asistencia", "label": "Control de gestión de incidencias y asistencia", "incluido": true },
-      { "key": "flujo_vacaciones", "label": "Flujo de aprobación de vacaciones", "incluido": true },
-      { "key": "flujo_nomina", "label": "Flujo de aprobación de nómina", "incluido": true },
-      { "key": "credifacil", "label": "Credifacil", "incluido": true },
-      { "key": "biometricos", "label": "Biométricos", "incluido": true, "detalle": "De ley y superiores" }
-    ],
-    "condiciones": {
-      "membresia_cadi": "A partir de 100 empleados",
-      "asesoria_legal": "Elaboración y firma de contratos, firma de renuncias voluntarias en las instalaciones del cliente. Aplica restricciones.",
-      "ejecutivo_cuenta": "A partir de 150 empleados",
-      "implant_oficina": "A partir de 200 empleados*",
-      "ubicaciones": "Hasta 3",
-      "registros_patronales": "Hasta 3",
-      "tipo_prestaciones": "De ley y superiores"
+    {
+      "grupo": "Seguridad social e impuestos",
+      "icono": "escudo",
+      "items": [
+        {
+          "texto": "Cálculo de cuotas IMSS e INFONAVIT",
+          "desde": 1
+        },
+        {
+          "texto": "Cálculo del ISN",
+          "desde": 2
+        }
+      ]
     },
-    "tabuladores": [
-      { "min": 1, "max": 5, "precio": 2200, "tipo": "mensual" },
-      { "min": 6, "max": 25, "precio": 280, "tipo": "unitario" },
-      { "min": 26, "max": 50, "precio": 265, "tipo": "unitario" },
-      { "min": 51, "max": 75, "precio": 250, "tipo": "unitario" },
-      { "min": 76, "max": 100, "precio": 240, "tipo": "unitario" }
-    ],
-    "addonsIncluidos": ["gestion_asistencia"]
-  },
-  {
-    "id": "premium",
-    "nombre": "Paquete Premium",
-    "etiqueta": "Estratégico",
-    "orden": 3,
-    "descripcion": "*Asesoría legal incluida para el paquete.",
-    "ui": {
-      "border": "border-amber-100",
-      "highlight": true
+    {
+      "grupo": "Consultoría, reportes y soporte",
+      "icono": "reloj",
+      "items": [
+        {
+          "texto": "Consultoría de nómina",
+          "desde": 1
+        },
+        {
+          "texto": "Reportes estándar",
+          "desde": 1
+        },
+        {
+          "texto": "Soporte estándar por correo y teléfono",
+          "desde": 1
+        },
+        {
+          "texto": "Asesoría especializada legal y fiscal",
+          "desde": 2
+        }
+      ]
     },
-    "caracteristicas": [
-      { "key": "nomina", "label": "Cálculo preciso de Nómina y obligaciones (Fonacot, ISN, ISR SYS)", "incluido": true },
-      { "key": "liquidaciones", "label": "Cálculo de Liquidaciones y Finiquitos", "incluido": true },
-      { "key": "imss_infonavit", "label": "Automatización de Cálculos IMSS e INFONAVIT", "incluido": true },
-      { "key": "timbrado", "label": "Timbrado de CFDI", "incluido": true },
-      { "key": "layout_pagos", "label": "Generación de Layout para Pagos", "incluido": true },
-      { "key": "asesoria_fiscal", "label": "Asesorías fiscales de nómina", "incluido": true },
-      { "key": "reportes_estandar", "label": "Reportes Estándar (CFDI, Opiniones de cumplimiento, acumulados)", "incluido": true },
-      { "key": "portal_empleado", "label": "Portal digital del empleado", "incluido": true },
-      { "key": "poliza_contable", "label": "Póliza contable", "incluido": true },
-      { "key": "reportes_repse", "label": "Reportes REPSE", "incluido": false },
-      { "key": "reportes_personalizados", "label": "Reportes Personalizados", "incluido": true },
-      { "key": "soporte_estandar", "label": "Soporte Estándar (Email, Teléfono)", "incluido": true, "detalle": "Tiempo de respuesta de 1 a 2 horas" },
-      { "key": "admin_plataformas", "label": "Administración de plataformas (Vales, fondo y caja de ahorro)", "incluido": true },
-      { "key": "reclutamiento", "label": "Reclutamiento y selección", "incluido": true },
-      { "key": "interaccion_social_web", "label": "Acceso a Plataforma Interacción social", "incluido": true },
-      { "key": "interaccion_social_app", "label": "Acceso a APP Interacción social", "incluido": true },
-      { "key": "incidencias_asistencia", "label": "Control de gestión de incidencias y asistencia", "incluido": true },
-      { "key": "flujo_vacaciones", "label": "Flujo de aprobación de vacaciones", "incluido": true },
-      { "key": "flujo_nomina", "label": "Flujo de aprobación de nómina", "incluido": true },
-      { "key": "credifacil", "label": "Credifacil", "incluido": true },
-      { "key": "biometricos", "label": "Biométricos", "incluido": true, "detalle": "De ley y superiores" }
-    ],
-    "condiciones": {
-      "membresia_cadi": "A partir de 50 empleados",
-      "asesoria_legal": "Elaboración y firma de contratos, firma de renuncias voluntarias en las instalaciones del cliente. Aplica restricciones.",
-      "ejecutivo_cuenta": "A partir de 150 empleados",
-      "implant_oficina": "A partir de 200 empleados*",
-      "ubicaciones": "+3",
-      "registros_patronales": "Sin límite especificado",
-      "tipo_prestaciones": "De ley y superiores"
+    {
+      "grupo": "Asistencia e incidencias",
+      "icono": "reloj",
+      "items": [
+        {
+          "texto": "Control de incidencias y asistencia",
+          "desde": 2
+        },
+        {
+          "texto": "Flujos de aprobación de vacaciones y de nómina",
+          "desde": 2
+        }
+      ]
     },
-    "tabuladores": [
-      { "min": 1, "max": 5, "precio": 2400, "tipo": "mensual" },
-      { "min": 6, "max": 25, "precio": 320, "tipo": "unitario" },
-      { "min": 26, "max": 50, "precio": 305, "tipo": "unitario" },
-      { "min": 51, "max": 75, "precio": 290, "tipo": "unitario" },
-      { "min": 76, "max": 100, "precio": 280, "tipo": "unitario" }
-    ],
-    "addonsIncluidos": ["gestion_asistencia"]
-  }
-]
+    {
+      "grupo": "Colaboradores",
+      "icono": "personas",
+      "items": [
+        {
+          "texto": "Portal digital del empleado",
+          "desde": 2
+        },
+        {
+          "texto": "Administración de vales y fondo o caja de ahorro",
+          "desde": 2
+        },
+        {
+          "texto": "Social Hub: red social interna con noticias, grupos, organigrama y directorio, también en app móvil",
+          "corto": "Social Hub (red social interna y app móvil)",
+          "desde": 2
+        }
+      ]
+    },
+    {
+      "grupo": "Contabilidad y reportes",
+      "icono": "grafica",
+      "items": [
+        {
+          "texto": "Póliza contable",
+          "desde": 2
+        },
+        {
+          "texto": "Reportes personalizados",
+          "desde": 2
+        }
+      ]
+    },
+    {
+      "grupo": "Talento",
+      "icono": "lupa",
+      "items": [
+        {
+          "texto": "Reclutamiento y selección",
+          "desde": 3
+        }
+      ]
+    },
+    {
+      "grupo": "Respaldo legal",
+      "icono": "balanza",
+      "items": [
+        {
+          "texto": "Representación legal",
+          "desde": 3
+        }
+      ]
+    }
+  ]
+}

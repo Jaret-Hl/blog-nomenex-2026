@@ -1,30 +1,26 @@
 ---
-import GradientOverlay from "../components/GradientOverlay.astro";
 import Alert from '../components/ui/Alert.astro';
-
+import '../styles/cotizador.css';
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="es">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" type="image/png" href="/logo-n.png" />
-    <title>NOMENEX - 2026</title>
-    <meta name="description" content="NOMENEX - 2026" />
-    <meta name="keywords" content="NOMENEX, 2026, Nomenex 2026" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet" />
+    <title>NOMENEX · Cotiza tu servicio de nómina</title>
+    <meta name="description" content="Cotiza tu servicio de nómina NOMENEX: paquetes, complementos y biométricos en comodato." />
+    <meta name="keywords" content="NOMENEX, nómina, cotización, biométricos" />
     <meta name="author" content="NOMENEX" />
     <meta name="robots" content="index, follow" />
-    <meta name="googlebot" content="index, follow" />
-    <meta name="bingbot" content="index, follow" />
-    <meta name="yandex" content="index, follow" />
   </head>
   <body>
-    <div id="background-mask" class="min-h-screen w-full">
-      <GradientOverlay />
-      <div class="relative z-2">
-        <slot />
-      </div>
+    <div class="min-h-screen w-full">
+      <slot />
     </div>
 
     <!-- Alert global - una sola instancia para toda la aplicación -->
@@ -36,55 +32,33 @@ import Alert from '../components/ui/Alert.astro';
   @import "tailwindcss";
   @plugin "@midudev/tailwind-animations";
 
-  @font-face {
-    font-family: "Montserrat-Medium";
-    src: url("/fonts/Montserrat-Medium.ttf") format("truetype");
-    font-weight: normal;
-    font-style: normal;
-    font-display: swap;
-  }
-  @font-face {
-    font-family: "Montserrat-Bold";
-    src: url("/fonts/Montserrat-Bold.ttf") format("truetype");
-    font-weight: bold;
-    font-style: normal;
-    font-display: swap;
-  }
-  @font-face {
-    font-family: "Nunito";
-    src: url("/fonts/Nunito-VariableFont_wght.ttf") format("truetype");
-    font-weight: normal;
-    font-style: normal;
-    font-display: swap;
+  /* Modo oscuro desactivado: la identidad es clara, como el cotizador */
+  @custom-variant dark (&:where(.dark, .dark *));
+
+  /* Paleta del cotizador. Sobrescribe los colores de Tailwind usados en el wizard y el formulario */
+  @theme {
+    --font-sans: "Inter", system-ui, sans-serif;
+    --color-slate-50: #F6F7F9;
+    --color-slate-200: #DDE2E8;
+    --color-slate-500: #5B6675;
+    --color-slate-600: #3A7CC0;
+    --color-slate-700: #24518A;
+    --color-slate-800: #1F2A37;
+    --color-yellow-400: #FFB066;
+    --color-yellow-500: #FF9933;
+    --color-yellow-600: #C4600A;
+    --color-blue-500: #3A7CC0;
+    --color-blue-600: #24518A;
   }
 
-  h1,
-  h2 {
-    font-family: "Montserrat-Bold", sans-serif;
-  }
-
-  h3,
-  h4,
-  h5,
-  h6 {
-    font-family: "Montserrat-Medium", sans-serif;
-  }
-</style>
-<style>
   body {
-    background: #000;
-  }
-  html,
-  body {
-    margin: 0;
-    width: 100%;
-    height: 100%;
+    background: #F6F7F9;
+    color: #1F2A37;
+    font-family: "Inter", system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
   }
 
-  #background-mask {
-    background-image: url("/fondo.png");
-    background-size: cover;
-    background-position: top;
-    background-repeat: no-repeat;
+  h1, h2, h3, h4 {
+    font-family: "Inter", system-ui, sans-serif;
   }
 </style>
