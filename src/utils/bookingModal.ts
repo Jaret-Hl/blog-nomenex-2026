@@ -299,6 +299,7 @@ export class BookingModalManager {
         clientEmail: clientData.email,
         clientCompany: clientData.company,
         clientPhone: clientData.phone,
+        cotizacion: leerCotizacionGuardada(),
       });
 
       if (error) {
@@ -314,6 +315,25 @@ export class BookingModalManager {
         error instanceof Error ? error.message : "Error desconocido";
       throw new Error(errorMessage);
     }
+  }
+}
+
+// Cotización que el cliente armó en el cotizador (si existe) para incluir su resumen en la asesoría
+function leerCotizacionGuardada() {
+  try {
+    const raw = sessionStorage.getItem("nomenex-cotizacion");
+    if (!raw) return undefined;
+    const g = JSON.parse(raw);
+    if (!g.paquete) return undefined;
+    return {
+      colaboradores: Number(g.colaboradores),
+      sedes: String(g.sedes),
+      paquete: g.paquete as string,
+      complementos: Array.isArray(g.complementos) ? (g.complementos as string[]) : [],
+      equipos: Number(g.equipos) || 1,
+    };
+  } catch {
+    return undefined;
   }
 }
 
