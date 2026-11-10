@@ -1,14 +1,16 @@
 import { z } from 'astro:schema';
+import { PRECIOS } from '@/config/precios';
 
 export const WizardStepSchema = z.object({
   step: z.coerce.number().int().min(1).max(4),
 
   // STEP 1
-  employees: z.coerce.number().min(1, 'Mínimo 1 empleado').max(100, 'Máximo 100 empleados').optional(),
+  employees: z.coerce.number().min(1, 'Mínimo 1 empleado').max(PRECIOS.escala.maximoColaboradores, `Máximo ${PRECIOS.escala.maximoColaboradores} empleados`).optional(),
   locations: z.string().min(1, 'Selecciona el número de sedes').optional(),
 
   // STEP 2
   packageId: z.string().min(1, 'Selecciona un paquete').optional(),
+  complementos: z.string().optional(),
 
   // STEP 3
   bioRequired: z.string()
