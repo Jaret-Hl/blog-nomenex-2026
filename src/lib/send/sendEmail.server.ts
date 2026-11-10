@@ -7,9 +7,10 @@ interface SendMailParams {
   subject: string;
   html: string;
   replyTo?: string;
+  adjuntos?: { nombre: string; tipo: string; contenido: string }[];
 }
 
-export async function sendMail({ to, subject, html, replyTo }: SendMailParams) {
+export async function sendMail({ to, subject, html, replyTo, adjuntos }: SendMailParams) {
   const errorDestino = validarCorreo(to);
   if (errorDestino) throw new Error(`Destinatario inválido: ${to}`);
   if (replyTo && validarCorreo(replyTo)) throw new Error("Correo de respuesta inválido");
@@ -31,6 +32,16 @@ export async function sendMail({ to, subject, html, replyTo }: SendMailParams) {
           body: { contentType: "HTML", content: html },
           ...(replyTo ? { replyToRecipients: [{ emailAddress: { address: replyTo } }] } : {}),
           toRecipients: [{ emailAddress: { address: to } }],
+          ...(adjuntos?.length
+            ? {
+                attachments: adjuntos.map((a) => ({
+                  "@odata.type": "#microsoft.graph.fileAttachment",
+                  name: a.nombre,
+                  contentType: a.tipo,
+                  contentBytes: a.contenido,
+                })),
+              }
+            : {}),
         },
         saveToSentItems: true,
       }),

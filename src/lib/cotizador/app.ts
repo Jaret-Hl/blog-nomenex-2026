@@ -389,6 +389,7 @@ function bindFormulario() {
         cotizacion: aInput(),
         contacto: v.valor,
         website,
+        captcha: String(new FormData(form).get("cf-turnstile-response") ?? ""),
       });
 
       if (res.error) {
@@ -402,6 +403,7 @@ function bindFormulario() {
         ? `Listo. Enviamos tu cotización a ${v.valor.correo}. Folio: ${folio}.`
         : `Listo. Enviamos tu cotización a ${v.valor.correo}.`;
       fOk.classList.add("on");
+      if (res.data?.message) fOk.textContent = res.data.message;
       btnEnviar.textContent = "Cotización enviada";
     } catch (error) {
       console.error("[cotizador] Error al enviar:", error);
