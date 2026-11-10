@@ -1,5 +1,6 @@
 ---  
 import { actions } from 'astro:actions';
+import { PRECIOS } from '@/config/precios';
 const { data } = Astro.props;
 ---
 
@@ -29,16 +30,16 @@ const { data } = Astro.props;
             id="employeeRangeSlider"
             type="range"
             min="1"
-            max="100"
+            max={PRECIOS.escala.maximoColaboradores}
             value={data.company?.employees ?? 5}
             class="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-blue-500 dark:accent-yellow-500"
           />
           <div class="flex justify-between text-xs text-slate-500 mt-1">
             <span>1</span>
-            <span>25</span>
             <span>50</span>
-            <span>75</span>
             <span>100</span>
+            <span>150</span>
+            <span>200</span>
           </div>
         </div>
 
@@ -60,7 +61,7 @@ const { data } = Astro.props;
             href="tel:+1234567890"
             class="w-full md:w-auto text-gray-300 hover:underline text-sm font-medium"
           >
-            +100 empleados💬
+            Más de 200 colaboradores💬
           </a>
         </div>
       </div>
@@ -81,7 +82,8 @@ const { data } = Astro.props;
         <option value="1" selected={data.company?.locations === '1'}>1 sede</option>
         <option value="2" selected={data.company?.locations === '2'}>2 sedes</option>
         <option value="3" selected={data.company?.locations === '3'}>3 sedes</option>
-        <option value="4" selected={data.company?.locations === '4'}>4+ sedes</option>
+        <option value="4" selected={data.company?.locations === '4'}>4 a 5 sedes</option>
+        <option value="6" selected={data.company?.locations === '6'}>Más de 5 sedes</option>
           </select>
         </div>
       </div>
@@ -91,7 +93,7 @@ const { data } = Astro.props;
     <div class="flex justify-end">
       <button
         type="submit"
-        class="bg-slate-600 text-white px-4 py-2 rounded-md hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        class="btn pri"
         id="submitBtn"
       >
         Continuar
@@ -121,6 +123,8 @@ const { data } = Astro.props;
       return;
     }
 
+    const MAX = Number(slider.max) || 200;
+
     // Cleanup function
     const cleanup = () => {
       numberInput.removeEventListener('input', handleNumberInput);
@@ -131,7 +135,7 @@ const { data } = Astro.props;
 
     const handleNumberInput = () => {
       const value = parseInt(numberInput.value) || 0;
-      if (value <= 100) {
+      if (value <= MAX) {
         slider.value = numberInput.value;
       }
       AlertManager.clearFieldError('employeeCount');
@@ -159,8 +163,8 @@ const { data } = Astro.props;
       if (!employees || employees < 1) {
         AlertManager.showFieldError('employeeCount', 'Debes indicar al menos 1 empleado');
         hasErrors = true;
-      } else if (employees > 100) {
-        AlertManager.showFieldError('employeeCount', 'Máximo 100 empleados');
+      } else if (employees > MAX) {
+        AlertManager.showFieldError('employeeCount', `Máximo ${MAX} empleados`);
         hasErrors = true;
       }
 

@@ -136,11 +136,11 @@ const currentStep = Math.min(Math.max(step, 1), totalSteps);
         label.className = '';
         
         if (step === stepNum) {
-          label.className = 'font-semibold text-slate-800 dark:text-white';
+          label.className = 'pasos-li on';
         } else if (step > stepNum) {
-          label.className = 'text-slate-500 dark:text-slate-500';
+          label.className = 'pasos-li ok';
         } else {
-          label.className = 'text-slate-400 dark:text-slate-400';
+          label.className = 'pasos-li';
         }
       });
     }
@@ -152,4 +152,9 @@ const currentStep = Math.min(Math.max(step, 1), totalSteps);
   } else {
     new WizardNavigator();
   }
+</script>
+
+<script>
+  import { initCotizadorLive } from '../../lib/pricing/vista';
+  initCotizadorLive();
 </script>

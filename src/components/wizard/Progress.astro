@@ -7,32 +7,23 @@ export interface Props {
 }
 
 const { currentStep, steps } = Astro.props;
-
 const totalSteps = steps.length;
 const step = Math.min(Math.max(currentStep, 1), totalSteps);
 const progress = Math.round((step / totalSteps) * 100);
 ---
 
-<!-- Barra -->
-<div class="w-full bg-slate-200 dark:bg-gray-700 h-2 rounded-full overflow-hidden mb-4">
+<!-- Barra (las clases bg-slate-600 y dark:bg-yellow-500 son usadas por Wizard.astro) -->
+<div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden mb-5">
   <div
     class="bg-slate-600 dark:bg-yellow-500 h-2 transition-all duration-300"
     style={`width: ${progress}%`}
   ></div>
 </div>
 
-<!-- Labels -->
-<ol class="flex justify-between text-xs text-slate-600 dark:text-slate-400 mb-6">
+<!-- Pasos en píldoras -->
+<ol class="pasos-lista">
   {steps.map((s) => (
-    <li
-      class={
-        step === s.id
-          ? 'font-semibold text-slate-800 dark:text-white'
-          : step > s.id
-          ? 'text-slate-500 dark:text-slate-500'
-          : 'text-slate-400 dark:text-slate-400'
-      }
-    >
+    <li class={step === s.id ? 'pasos-li on' : step > s.id ? 'pasos-li ok' : 'pasos-li'}>
       {s.label}
     </li>
   ))}

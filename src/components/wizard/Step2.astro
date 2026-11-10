@@ -1,58 +1,105 @@
 ---
 import paquetes from "@/data/paquetes.json";
+import { PRECIOS, type Complemento } from "@/config/precios";
 import PaqueteItem from "./paquetes/PaqueteItem.astro";
+
 const { data } = Astro.props;
+const elegidos: string[] = data.complementos ?? [];
+
+// El biométrico se cotiza en el paso 3 (comodato, por equipo).
+const mensuales = PRECIOS.complementos.filter((c) => c.tipo !== "unico" && c.id !== "bio");
+const grupos = [...new Set(mensuales.map((c) => c.grupo))];
+const unicos = PRECIOS.complementos.filter((c) => c.tipo === "unico");
+
+const etiqueta = (c: Complemento) =>
+  c.tipo === "colab"
+    ? `$${c.precio} por colaborador al mes`
+    : `Pago único: $${(c.base ?? 0).toLocaleString("es-MX")} + $${c.precio} por colaborador`;
 ---
 
-<!-- integrando paquetes -->
-<form class="pt-4 max-w-3xl mx-auto" id="step2Form">
+<form id="step2Form" class="pt-1">
   <input type="hidden" name="step" value="2" />
   <input type="hidden" name="packageId" id="selectedPackageId" value={data.packageId || ""} />
-  <div class="space-y-4">
-    <h2 class="text-xl font-medium">
-      2. Selecciona el paquete que mejor se adapte a tu operación
-    </h2>
-    <div
-      id="paquetesContainer"
-      class="flex flex-col gap-4 w-full max-w-4xl mt-2"
-    >
-      {
-        paquetes.map((paquete) => (
-          <PaqueteItem
-            paquete={paquete}
-            isSelected={data.packageId === paquete.id}
-          />
-        ))
-      }
-    </div>
-    <div class="flex justify-between">
-      <!-- VOLVER -->
-      <button
-        type="button"
-        id="backBtn"
-        class="px-4 py-2 border rounded-md text-sm hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-      >
-        Volver
-      </button>
 
-      <!-- CONTINUAR -->
-      <button
-        type="submit"
-        id="submitBtn"
-        class="bg-slate-600 text-white px-4 py-2 rounded-md hover:bg-slate-700 transition-colors"
-      >
-        Continuar
-      </button>
+  <h2 class="titulo-paso">2. Elige tu paquete y complementos</h2>
+  <p class="text-sm text-slate-500 mb-2">Compara los paquetes y suma los complementos que necesitas.</p>
+
+  <div id="paquetesContainer" class="planes" role="radiogroup" aria-label="Paquetes NOMENEX">
+    {paquetes.map((paquete) => (
+      <PaqueteItem paquete={paquete} isSelected={data.packageId === paquete.id} />
+    ))}
+  </div>
+
+  <section class="comp">
+    <div class="comp-head">
+      <span class="plus">+</span>
+      <div>
+        <h2>Complementos</h2>
+        <p>Se suman al paquete. Precios antes de IVA.</p>
+      </div>
     </div>
+
+    <div class="comp-grid">
+      {grupos.map((grupo) => (
+        <div class="cg">
+          <h3>{grupo}</h3>
+          <ul>
+            {mensuales.filter((c) => c.grupo === grupo).map((c) => (
+              <li>
+                <label class="cg-item">
+                  <input type="checkbox" data-complemento={c.id} checked={elegidos.includes(c.id)} />
+                  <span>
+                    <span class="cg-nombre">{c.nombre}</span>
+                    <span class="cg-desc">{c.descripcion}</span>
+                    <span class="pr">{etiqueta(c)}</span>
+                  </span>
+                </label>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
+
+      <div class="cg">
+        <h3>Consultoría (pago único)</h3>
+        <ul>
+          {unicos.map((c) => (
+            <li>
+              <label class="cg-item">
+                <input type="checkbox" data-complemento={c.id} checked={elegidos.includes(c.id)} />
+                <span>
+                  <span class="cg-nombre">{c.nombre}</span>
+                  <span class="cg-desc">{c.descripcion}</span>
+                  <span class="pr">{etiqueta(c)}</span>
+                </span>
+              </label>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <div class="barra-total">
+    <div>
+      <span>Total estimado mensual</span><br />
+      <small>Pago único de consultoría: <span data-live="total-unico">—</span></small><br />
+      <small>Sedes y biométricos se suman en los siguientes pasos.</small>
+    </div>
+    <b data-live="total-mensual">—</b>
+  </div>
+
+  <div class="acciones">
+    <button type="button" id="backBtn" class="btn sec">Volver</button>
+    <button type="submit" id="submitBtn" class="btn pri">Continuar</button>
   </div>
 </form>
 
 <script>
   import { actions } from "astro:actions";
-  import { AlertManager } from "../../lib/alertUtils";
 
-  if (typeof window === 'undefined') {
-    throw new Error('This script should only run on the client');
+  if (typeof window === "undefined") {
+    throw new Error("This script should only run on the client");
   }
 
   function initializeStep2() {
@@ -62,34 +109,40 @@ const { data } = Astro.props;
     const hiddenInput = document.getElementById("selectedPackageId") as HTMLInputElement | null;
 
     if (!form || !submitBtn || !backBtn || !hiddenInput) {
-      console.error('[Step2] Required elements not found');
+      console.error("[Step2] Required elements not found");
       return;
     }
 
-    const paqueteCards = form.querySelectorAll(".paqueteCard");
-    const handlers = new Map<Element, Array<{ event: string; handler: EventListener }>>();
+    const paqueteCards = Array.from(form.querySelectorAll<HTMLElement>(".paqueteCard"));
+    const checks = form.querySelectorAll<HTMLInputElement>("input[data-complemento]");
 
-    const cleanup = () => {
-      handlers.forEach((eventHandlers, element) => {
-        eventHandlers.forEach(({ event, handler }) => {
-          element.removeEventListener(event, handler);
-        });
+    const seleccionar = (card: HTMLElement) => {
+      const id = card.dataset.packageId;
+      if (id) hiddenInput.value = id;
+      paqueteCards.forEach((otra) => {
+        const activo = otra === card;
+        otra.classList.toggle("activo", activo);
+        otra.setAttribute("aria-checked", String(activo));
       });
-      handlers.clear();
     };
 
-    const handleBack = () => {
-      document.dispatchEvent(new CustomEvent("wizard:prev"));
-    };
+    paqueteCards.forEach((card) => {
+      card.addEventListener("click", () => seleccionar(card));
+      card.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          seleccionar(card);
+        }
+      });
+    });
+
+    const handleBack = () => document.dispatchEvent(new CustomEvent("wizard:prev"));
 
     const handleSubmit = async (e: Event) => {
       e.preventDefault();
 
-      const selectedPackageId = hiddenInput.value;
-      if (!selectedPackageId) {
-        if (typeof window.showAlert === 'function') {
-          window.showAlert("Por favor, selecciona un paquete para continuar.", "error");
-        }
+      if (!hiddenInput.value) {
+        window.showAlert?.("Por favor, selecciona un paquete para continuar.", "error");
         return;
       }
 
@@ -98,30 +151,28 @@ const { data } = Astro.props;
 
       try {
         const formData = new FormData(form);
+        formData.set(
+          "complementos",
+          Array.from(checks)
+            .filter((c) => c.checked)
+            .map((c) => c.dataset.complemento)
+            .join(",")
+        );
+
         const response = await actions.wizardStep(formData);
 
         if (response.error) {
-          const errorMessage = response.error.message || "Error al guardar el paquete";
-          if (typeof window.showAlert === 'function') {
-            window.showAlert(errorMessage, "error");
-          }
+          window.showAlert?.(response.error.message || "Error al guardar el paquete", "error");
           return;
         }
 
         if (response.data?.success) {
-          if (typeof window.showAlert === 'function') {
-            window.showAlert("✓ Paquete seleccionado correctamente", "success", 1500);
-          }
-
-          setTimeout(() => {
-            document.dispatchEvent(new CustomEvent("wizard:next"));
-          }, 1500);
+          window.showAlert?.("✓ Paquete y complementos guardados", "success", 1500);
+          setTimeout(() => document.dispatchEvent(new CustomEvent("wizard:next")), 1500);
         }
       } catch (error) {
-        if (typeof window.showAlert === 'function') {
-          window.showAlert("Error inesperado. Por favor intenta de nuevo.", "error");
-        }
-        console.error('[Step2] Submit error:', error);
+        window.showAlert?.("Error inesperado. Por favor intenta de nuevo.", "error");
+        console.error("[Step2] Submit error:", error);
       } finally {
         submitBtn.disabled = false;
         submitBtn.textContent = "Continuar";
@@ -129,60 +180,11 @@ const { data } = Astro.props;
     };
 
     backBtn.addEventListener("click", handleBack);
-    handlers.set(backBtn, [{ event: 'click', handler: handleBack }]);
-
     form.addEventListener("submit", handleSubmit);
-    handlers.set(form, [{ event: 'submit', handler: handleSubmit }]);
-
-    paqueteCards.forEach((card) => {
-      const toggleButton = card.querySelector(".toggle-details") as HTMLButtonElement | null;
-      const detailsContent = card.querySelector(".details-content") as HTMLDivElement | null;
-      const svg = toggleButton?.querySelector("svg");
-
-      if (!toggleButton || !detailsContent || !svg) return;
-
-      const handleToggle = () => {
-        const isHidden = detailsContent.classList.contains("hidden");
-        detailsContent.classList.toggle("hidden");
-        svg.style.transform = isHidden ? "rotate(180deg)" : "rotate(0deg)";
-      };
-
-      const handleCardClick = (e: Event) => {
-        if ((e.target as HTMLElement).closest(".toggle-details")) return;
-
-        const packageId = card.getAttribute("data-package-id");
-        if (packageId) {
-          hiddenInput.value = packageId;
-        }
-
-        paqueteCards.forEach((otherCard) => {
-          otherCard.classList.remove("border-yellow-500", "ring-2", "ring-yellow-400", "shadow-lg");
-          otherCard.classList.add("border-slate-200", "dark:border-gray-700");
-        });
-        
-        card.classList.add("border-yellow-500", "ring-2", "ring-yellow-400", "shadow-lg");
-        card.classList.remove("border-slate-200", "dark:border-gray-700");
-      };
-
-      toggleButton.addEventListener("click", handleToggle);
-      card.addEventListener("click", handleCardClick);
-
-      if (!handlers.has(card)) {
-        handlers.set(card, []);
-      }
-      handlers.get(card)!.push(
-        { event: 'click', handler: handleCardClick },
-        { event: 'click', handler: handleToggle }
-      );
-    });
-
-    document.addEventListener('astro:before-preparation', cleanup, { once: true });
-    
-    return cleanup;
   }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initializeStep2);
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initializeStep2);
   } else {
     initializeStep2();
   }
