@@ -33,7 +33,9 @@
 .hero-pts { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 18px; list-style: none; padding: 0; }
 .hero-pts li { background: #fff; color: var(--azul-osc); font-weight: 700; font-size: 13px; padding: 7px 12px; border-radius: 999px; }
 .hero-pts li::before { content: "✓ "; color: var(--naranja); }
-@media (max-width: 900px) { .hero-h { font-size: 28px; } }
+.hero-iso { flex: none; width: 240px; height: 240px; border-radius: 40px; background: #fff; display: grid; place-items: center; box-shadow: 0 18px 40px rgba(14, 40, 74, .35); transform: rotate(-6deg); }
+.hero-iso img { width: 170px; height: auto; transform: rotate(6deg); }
+@media (max-width: 900px) { .hero-h { font-size: 28px; } .hero-iso { display: none; } }
 
 /* Tipografía y bloques generales */
 h1 { font-size: 32px; line-height: 1.2; font-weight: 800; margin: 10px 0 8px; color: var(--tinta); }
