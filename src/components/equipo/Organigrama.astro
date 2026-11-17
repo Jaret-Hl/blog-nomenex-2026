@@ -1,0 +1,37 @@
+---
+import { EQUIPO, esVacante, type Nodo, type Persona } from "@/data/equipo";
+import NodoPersona from "./NodoPersona.astro";
+import TarjetaPersona from "./TarjetaPersona.astro";
+import Icono from "./Icono.astro";
+
+// Estructura: una raíz (la dirección) y sus ramas. Las ramas siguen el orden de EQUIPO.
+const raiz = EQUIPO.find((n): n is Persona => !esVacante(n) && n.reportaA === null) as Persona;
+const ramas: Nodo[] = EQUIPO.filter((n) => n.reportaA === raiz.id);
+const personas = EQUIPO.filter((n): n is Persona => !esVacante(n));
+---
+
+<div class="org">
+  <NodoPersona nodo={raiz} raiz />
+  <div class="conn" aria-hidden="true"></div>
+  <div class="ramas">
+    {ramas.map((n) => (
+      <div class="rama">
+        <NodoPersona nodo={n} />
+      </div>
+    ))}
+  </div>
+</div>
+
+<ul class="leyenda" aria-label="Colores por área">
+  <li><i class="punto area-direccion"></i>Dirección</li>
+  <li><i class="punto area-contabilidad"></i>Contabilidad</li>
+  <li><i class="punto area-ti"></i>Ejecutivos TI</li>
+  <li><i class="punto area-vacante"></i>Vacante</li>
+</ul>
+
+{personas.map((p) => <TarjetaPersona persona={p} />)}
+
+<script>
+  import { initTarjetas } from "@/lib/equipo/dialogos";
+  initTarjetas();
+</script>

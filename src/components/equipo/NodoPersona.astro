@@ -1,0 +1,26 @@
+---
+import { esVacante, type Nodo } from "@/data/equipo";
+
+interface Props {
+  nodo: Nodo;
+  raiz?: boolean;
+}
+
+const { nodo, raiz = false } = Astro.props;
+---
+
+{
+  esVacante(nodo) ? (
+    <div class={`nodo vacante ${raiz ? "nodo-raiz" : ""}`}>
+      <span class="avatar" aria-hidden="true">+</span>
+      <span class="nombre">Vacante</span>
+      <span class="puesto">{nodo.cargo}</span>
+    </div>
+  ) : (
+    <button class={`nodo area-${nodo.area} ${raiz ? "nodo-raiz" : ""}`} type="button" data-abrir={nodo.id} aria-haspopup="dialog">
+      <img src={nodo.foto} alt="" width={raiz ? 116 : 96} height={raiz ? 116 : 96} loading="lazy" />
+      <span class="nombre">{nodo.nombre}</span>
+      <span class="puesto">{nodo.cargo}</span>
+    </button>
+  )
+}

@@ -1,0 +1,109 @@
+---
+import QRCode from "qrcode";
+import { EMPRESA } from "@/config/empresa";
+import { generarVcard, formatearTelefono } from "@/lib/equipo/vcard";
+import type { Persona } from "@/data/equipo";
+
+interface Props {
+  persona: Persona;
+}
+
+const { persona } = Astro.props;
+
+const vcard = generarVcard({
+  grado: persona.grado,
+  nombres: persona.nombres,
+  apellidos: persona.apellidos,
+  nombre: persona.nombre,
+  cargo: persona.cargo,
+  empresa: EMPRESA.nombre,
+  telefono: persona.telefono,
+  correo: persona.correo,
+  sitio: EMPRESA.sitio,
+});
+const qr = await QRCode.toDataURL(vcard, {
+  margin: 1,
+  width: 200,
+  errorCorrectionLevel: "M",
+  color: { dark: "#1B2738", light: "#FFFFFF" },
+});
+const mailto = `mailto:${persona.correo}?subject=${encodeURIComponent(EMPRESA.asuntoCorreo)}`;
+const vcardHref = `data:text/vcard;charset=utf-8,${encodeURIComponent(vcard)}`;
+const telefonoTexto = persona.telefono ? formatearTelefono(persona.telefono) : null;
+---
+
+<dialog id={`tarjeta-${persona.id}`} class="tarjeta" aria-label={`Tarjeta digital de ${persona.nombre}`}>
+  <button class="tarjeta-cerrar" type="button" data-cerrar aria-label="Cerrar">×</button>
+
+  <div class="tarjeta-scroll">
+    <div class="tarjeta-cab">
+      <span class="tarjeta-logo"><img src="/brand/logotipo-nomenex.svg" alt="NOMENEX" width="120" height="24" /></span>
+    </div>
+
+    <div class="tarjeta-perfil">
+      <img class="tarjeta-foto" src={persona.foto} alt={`Fotografía de ${persona.nombre}`} width="96" height="96" />
+      <h2 class="tarjeta-nombre"><span class="tarjeta-grado">{persona.grado}</span> {persona.nombre}</h2>
+      <p class="tarjeta-cargo">{persona.cargo}</p>
+      <p class="tarjeta-lema">{persona.lema}</p>
+    </div>
+
+    <div class="tarjeta-cuerpo">
+      <a class="cta" href={mailto}>{EMPRESA.ctaTexto}</a>
+
+      <nav class="acciones" aria-label="Contacto">
+        {persona.telefono && (
+          <a class="accion" href={`tel:+52${persona.telefono}`}>
+            <span class="accion-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.8 2z"/></svg></span>
+            Llamar
+          </a>
+        )}
+        <a class="accion" href={mailto}>
+          <span class="accion-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 7l-10 6L2 7"/></svg></span>
+          Correo
+        </a>
+        <a class="accion" href={EMPRESA.sitio} target="_blank" rel="noopener">
+          <span class="accion-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/></svg></span>
+          Sitio web
+        </a>
+        <a class="accion" href={vcardHref} download={`${persona.id}.vcf`}>
+          <span class="accion-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6M22 11h-6"/></svg></span>
+          Guardar
+        </a>
+      </nav>
+
+      <div class="datos">
+        {telefonoTexto && (
+          <div class="dato">
+            <span class="dato-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.8 2z"/></svg></span>
+            <span class="dato-txt"><span class="dato-et">Teléfono</span><span class="dato-val">{telefonoTexto}</span></span>
+            <button class="copiar" type="button" data-copiar={persona.telefono}>Copiar</button>
+          </div>
+        )}
+        <div class="dato">
+          <span class="dato-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 7l-10 6L2 7"/></svg></span>
+          <span class="dato-txt"><span class="dato-et">Correo</span><span class="dato-val">{persona.correo}</span></span>
+          <button class="copiar" type="button" data-copiar={persona.correo}>Copiar</button>
+        </div>
+        <div class="dato">
+          <span class="dato-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/></svg></span>
+          <span class="dato-txt"><span class="dato-et">Sitio web</span><span class="dato-val">{EMPRESA.sitioTexto}</span></span>
+          <button class="copiar" type="button" data-copiar={EMPRESA.sitio}>Copiar</button>
+        </div>
+      </div>
+
+      <details class="bloque" open>
+        <summary>Servicios</summary>
+        <ul class="servicios">
+          {persona.servicios.map((s) => <li>{s}</li>)}
+        </ul>
+      </details>
+
+      <details class="bloque">
+        <summary>Código QR para guardar el contacto</summary>
+        <img src={qr} alt="Código QR con los datos de contacto" width="160" height="160" />
+      </details>
+
+      <p class="tarjeta-pie">{EMPRESA.nombre} · {EMPRESA.grupo}</p>
+    </div>
+  </div>
+</dialog>

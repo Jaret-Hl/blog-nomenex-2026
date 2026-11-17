@@ -1,0 +1,48 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Header from "../sections/Header.astro";
+import Footer from "../sections/Footer.astro";
+import Organigrama from "../components/equipo/Organigrama.astro";
+import { EMPRESA } from "@/config/empresa";
+import "../styles/equipo.css";
+
+const servicios = [
+  "Cálculo de nómina y timbrado CFDI",
+  "Cálculos de IMSS, INFONAVIT e ISN",
+  "Control de asistencia con checadores biométricos",
+  "Asesoría en contratos, tabuladores y puestos",
+];
+---
+
+<Layout title="Quiénes somos · NOMENEX">
+  <div class="flex min-h-screen flex-col">
+    <Header />
+
+    <section class="hero">
+      <div class="in">
+        <div class="hero-txt">
+          <span class="hero-tag">{EMPRESA.grupo}</span>
+          <h1 class="hero-h">Quiénes <span>somos</span></h1>
+          <p>{EMPRESA.nombre} es un servicio de planeación y gestión estratégica de nómina.</p>
+        </div>
+      </div>
+    </section>
+
+    <main class="wrap">
+      <section class="card">
+        <h2 class="titulo-sec">Lo que hacemos</h2>
+        <ul class="lista-servicios">
+          {servicios.map((s) => <li>{s}</li>)}
+        </ul>
+      </section>
+
+      <section class="card" aria-labelledby="equipo-titulo">
+        <h2 class="titulo-sec" id="equipo-titulo">Nuestro equipo</h2>
+        <p class="intro">Toca a una persona para ver su tarjeta digital y guardar su contacto.</p>
+        <Organigrama />
+      </section>
+    </main>
+
+    <Footer />
+  </div>
+</Layout>
