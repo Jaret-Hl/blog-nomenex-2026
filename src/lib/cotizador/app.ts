@@ -521,7 +521,8 @@ function bindEventos() {
   });
 
   // Agenda desde el encabezado: lleva al resumen y enfoca el formulario
-  $("#ctaAgenda")?.addEventListener("click", () => {
+  $("#ctaAgenda")?.addEventListener("click", (e) => {
+    e.preventDefault();
     ir(4);
     $<HTMLInputElement>("#fNom")?.focus();
   });
@@ -540,6 +541,6 @@ export function initCotizador() {
   sincronizarControles();
   pintarPlanes();
   renderTodo();
-  ir(estado.paso, false);
+  ir(location.hash === "#resumen" ? 4 : estado.paso, location.hash !== "#resumen");
 }
 

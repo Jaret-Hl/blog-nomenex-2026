@@ -192,3 +192,13 @@ button.op:hover { border-style: solid; }
   .acciones { flex-direction: column-reverse; }
   .acciones .btn { width: 100%; }
 }
+
+/* Enlaces con apariencia de botón y navegación del encabezado */
+a.btn { text-decoration: none; display: inline-block; }
+.top-nav { display: flex; gap: 20px; }
+.top-nav a { font-weight: 700; font-size: 14px; color: var(--azul-osc); text-decoration: none; }
+.top-nav a:hover { color: var(--naranja-osc); }
+@media (max-width: 639px) {
+  .top .in { flex-wrap: wrap; justify-content: center; }
+  .top-nav { order: 3; width: 100%; justify-content: center; gap: 28px; }
+}

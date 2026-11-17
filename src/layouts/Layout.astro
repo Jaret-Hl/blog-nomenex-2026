@@ -1,6 +1,8 @@
 ---
 import Alert from '../components/ui/Alert.astro';
 import '../styles/cotizador.css';
+
+const { title = 'NOMENEX · Cotiza tu servicio de nómina' } = Astro.props;
 ---
 
 <!doctype html>
@@ -12,7 +14,7 @@ import '../styles/cotizador.css';
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet" />
-    <title>NOMENEX · Cotiza tu servicio de nómina</title>
+    <title>{title}</title>
     <meta name="description" content="Cotiza tu servicio de nómina NOMENEX: paquetes, complementos y biométricos en comodato." />
     <meta name="keywords" content="NOMENEX, nómina, cotización, biométricos" />
     <meta name="author" content="NOMENEX" />
