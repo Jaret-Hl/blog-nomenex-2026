@@ -5,7 +5,7 @@ import { paquetes, gruposParaNivel } from "@/lib/cotizador/catalogo";
 ---
 
 <h1>Elige el paquete que <span>acompaña a tu empresa</span></h1>
-<p class="intro">Cada paquete incluye todo lo del anterior. Precios mensuales para <b id="nTxt">25</b> colaboradores, más IVA.</p>
+<p class="intro">Cada paquete incluye todo lo del anterior. Precios mensuales para <b id="nTxt">25</b> colaboradores con nómina <b id="perTxt">quincenal</b>, más IVA.</p>
 
 <section class="planes" role="radiogroup" aria-label="Paquetes NOMENEX">
   {paquetes.map((p) => <PlanCard paquete={p} grupos={gruposParaNivel(p.nivel)} />)}
