@@ -1,52 +1,44 @@
-# Cotizador NOMENEX · guía de mantenimiento
+# Cotizador NOMENEX · guía de mantenimiento (Tarifa 2027)
 
-Todo lo que cambia el negocio vive en archivos separados. No hace falta tocar componentes para actualizar precios o textos.
+Todo lo que cambia el negocio vive en archivos separados. No hace falta tocar componentes para cambiar precios o textos.
 
 | Qué cambiar | Dónde |
 |---|---|
-| Precios (cuota base, tramos, cargo por paquete, mínimo Premium) | `src/config/precios.ts` → `escala`, `paquetes` |
-| Cargo por sedes (porcentajes) | `src/config/precios.ts` → `sedes` |
-| Complementos (precio, descripción, grupo, tipo) | `src/config/precios.ts` → `complementos` |
+| Precios: lista de 1 a 5 colaboradores, tramos, extras por paquete, descuento, redondeo, vigencia | `src/config/precios.ts` → `tarifa` |
+| Periodicidad de la nómina (factor semanal, quincenal, mensual) | `src/config/precios.ts` → `periodicidad` |
+| Registros patronales, salarios variables, nóminas, razones sociales | `src/config/precios.ts` → `registros`, `salarios`, `nominas`, `razones` |
+| Complementos y accesorios (precio, descripción, grupo, tipo) | `src/config/precios.ts` → `complementos` |
+| Orden de los grupos en el paso Complementos | `src/config/precios.ts` → `ordenGrupos` |
 | IVA | `src/config/precios.ts` → `iva` |
-| Nombre, promesa, etiqueta y servicios de cada paquete | `src/data/paquetes.json` |
-| Nivel en el que se incluye cada servicio | `src/data/paquetes.json` → `items[].desde` (1 = Básico, 2 = Profesional, 3 = Premium) |
-| Límite de colaboradores, equipos y sedes | `src/lib/quote/validacion.ts` |
+| Nombre, promesa y servicios de cada paquete | `src/data/paquetes.json` |
+| Límites de captura (colaboradores, equipos, razones, nóminas) | `src/lib/quote/validacion.ts` |
 | Pasos del cotizador | `src/config/pasos.ts` |
 | Textos del banner | `src/sections/Hero.astro` |
-| Correos (asunto y contenido) | `src/lib/quote/emailTemplates.ts` |
-| Colores y tipografía | `src/styles/cotizador.css` y `src/layouts/Layout.astro` (`@theme`) |
+| Contenido de los correos | `src/lib/quote/emailTemplates.ts` y `src/lib/mail/asesoria.ts` |
+| Colores y tipografía | `src/styles/cotizador.css` y `src/layouts/Layout.astro` |
 
 ## Cómo está organizado
 
-- `src/components/cotizador/`: un componente por paso (`PasoEmpresa`, `PasoPaquetes`, `PasoComplementos`, `PasoResumen`) y piezas reutilizables (`PlanCard`, `ComparativaTabla`).
-- `src/lib/cotizador/app.ts`: comportamiento en el navegador (navegación, precios en vivo, complementos, resumen y envío).
-- `src/lib/quote/mapeo.ts`: convierte la cotización en el cálculo oficial. Es la única fuente de totales, tanto en pantalla como en el servidor.
-- `src/lib/quote/validacion.ts`: reglas compartidas por el formulario y el servidor.
-- `src/actions/sendQuote.server.ts`: recalcula en el servidor, valida, aplica límite de envíos y envía los correos.
-- La agenda (Teams) se abre desde `BookingModal` con `window.openBookingModal`. No cambia.
+- **Motor de precios:** `src/lib/pricing/tarifa.ts`. Calcula la cotización completa (paquete, razones, registros, salarios, nóminas, complementos, IVA y pago único). Es la única fuente de totales: la interfaz, los correos y las acciones del servidor usan esta misma función.
+- **Verificación:** el motor replica las fórmulas del cotizador de referencia y se comprobó contra 600 casos (incluidos los de cotización a la medida).
+- **Interfaz:** `src/components/cotizador/` (un componente por paso y piezas reutilizables) y `src/lib/cotizador/app.ts` (comportamiento en el navegador).
+- **Acciones del servidor:** `src/actions/sendQuote.server.ts` y `src/actions/bookSession.server.ts`. Vuelven a validar y recalcular la cotización; no confían en el navegador.
+- La agenda (Teams) se abre desde `BookingModal` con `window.openBookingModal`.
 
 ## Variables de entorno (`.env`)
 
-Copia `.env.example` a `.env`. Son obligatorias: `AZURE_TENANT_ID`, `AZURE_CLIENT_ID`, `AZURE_CLIENT_SECRET`, `MS_USER_EMAIL`. Si falta alguna o tiene formato inválido, el envío de correos muestra un error claro en el registro del servidor.
+Obligatorias: `AZURE_TENANT_ID`, `AZURE_CLIENT_ID`, `AZURE_CLIENT_SECRET`, `MS_USER_EMAIL`.
+Opcionales: `MS_QUOTE_NOTIFY_EMAIL`, `MS_TIMEZONE`, `PUBLIC_TURNSTILE_SITE_KEY` y `TURNSTILE_SECRET_KEY` (deben ir las dos), `MAX_CORREOS_DIA`.
 
 ## Validaciones de un envío
 
-- Colaboradores entre 1 y 1000 (más de 200 se marca como cotización a la medida).
-- Sedes, paquete y complementos deben existir en el catálogo; los demás se descartan.
-- Biométricos entre 1 y 100 equipos.
-- Nombre, empresa y correo válidos; teléfono opcional de 10 dígitos.
-- Aceptar el aviso de privacidad es obligatorio.
-- Campo trampa para bots y límite de 5 envíos por 15 minutos por conexión y de 3 por correo.
+- Colaboradores de 1 a 1000 (más de 200 se marca como cotización a la medida); razones sociales y registros de 1 a 50; nóminas de 1 a 20; asimilados de 0 a 20.
+- Periodicidad y tipo de salario deben ser valores permitidos; el paquete y los complementos deben existir en el catálogo.
+- Biométricos de 1 a 100 equipos.
+- Nombre, empresa y correo válidos; teléfono opcional de 10 dígitos; aviso de privacidad obligatorio.
+- Anti-spam: campo trampa, límites por conexión y por correo, bloqueo de correos desechables, tope diario de correos y verificación anti-bots opcional.
 
-## Correos y protección contra abuso
+## Pendientes de negocio
 
-- **Cotización:** se envía al cliente y a NOMENEX, aunque no agende asesoría. Diseño común en `src/lib/mail/plantilla.ts`.
-- **Asesoría:** un solo correo al cliente con resumen, enlace de Teams y archivo `.ics` (sin invitación automática de Microsoft). NOMENEX recibe una notificación.
-- **Límites:** cotizaciones 5 cada 15 min por conexión, 25 por día por conexión, 3 por correo al día. Asesorías 4 por hora por conexión y 2 por correo al día.
-- **Tope global:** `MAX_CORREOS_DIA` (300 por defecto) protege la cuota de Microsoft 365.
-- **Anti-bots (opcional):** configura `PUBLIC_TURNSTILE_SITE_KEY` y `TURNSTILE_SECRET_KEY` con claves de Cloudflare Turnstile. Sin ellas, el formulario sigue funcionando con los demás controles.
-- **Correos desechables:** se rechazan (lista en `src/lib/security/dominios.ts`).
-- **Duplicados:** una misma cotización no se reenvía durante 30 minutos.
-- **Horario de asesorías:** lunes a viernes, 9:00 a 18:00 (hora de `MS_TIMEZONE`), con 2 horas de anticipación y máximo 60 días.
-
-Nota: los límites viven en memoria. En Vercel cada instancia lleva su conteo; para un control estricto, migra `src/lib/quote/rateLimit.ts` a un almacén compartido.
+Los precios marcados como "PROPUESTA POR VALIDAR" en `precios.ts` deben confirmarse contra costos antes de publicar.
+La agenda del cotizador de referencia (calendario, modalidad y recordatorio por WhatsApp) no se aplicó: el blog agenda con Teams.
