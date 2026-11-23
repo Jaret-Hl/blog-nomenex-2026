@@ -5,6 +5,8 @@ export interface ItemServicio {
   texto: string;
   corto?: string;
   desde: 1 | 2 | 3;
+  /** false = servicio adicional con costo: se muestra en la tarjeta, no como incluido en la comparativa. */
+  incluido?: boolean;
 }
 
 export interface Servicio {
@@ -27,7 +29,7 @@ export interface Paquete {
 export const paquetes = data.paquetes as Paquete[];
 export const servicios = data.servicios as Servicio[];
 
-/** Servicios que se incluyen por primera vez en un nivel (lo que muestra cada tarjeta). */
+/** Servicios que se muestran en la tarjeta de un nivel (los que empiezan en ese paquete). */
 export function gruposParaNivel(nivel: number): Servicio[] {
   return servicios
     .map((s) => ({ ...s, items: s.items.filter((i) => i.desde === nivel) }))

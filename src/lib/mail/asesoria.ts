@@ -2,7 +2,7 @@
 import { escapeHtml, plantilla, type Fila, type Seccion } from "./plantilla";
 import { filasCotizacion } from "@/lib/quote/emailTemplates";
 import type { CotizacionInput } from "@/lib/quote/validacion";
-import type { QuoteResult } from "@/lib/pricing/types";
+import type { Desglose } from "@/lib/pricing/tarifa";
 
 export interface DatosAsesoria {
   folio: string;
@@ -11,7 +11,7 @@ export interface DatosAsesoria {
   zona: string;
   contacto: { nombre: string; empresa?: string; correo: string; telefono?: string };
   joinUrl?: string;
-  cotizacion?: { cotizacion: CotizacionInput; quote: QuoteResult } | null;
+  cotizacion?: { cotizacion: CotizacionInput; quote: Desglose } | null;
 }
 
 const capitalizar = (t: string) => t.charAt(0).toUpperCase() + t.slice(1);
