@@ -8,7 +8,8 @@ import { sendMail } from "@/lib/send/sendEmail.server";
 import { getEnv } from "@/lib/config/env.server";
 import { revisarSolicitud } from "@/lib/security/proteccion.server";
 import { validarCotizacion, type CotizacionInput } from "@/lib/quote/validacion";
-import { cotizar } from "@/lib/quote/mapeo";
+import { calcularDesdeInput } from "@/lib/quote/emailTemplates";
+import { cotizacionSchema } from "./cotizacionSchema.server";
 import { generarIcs } from "@/lib/mail/ics";
 import {
   buildAsesoriaCliente,
@@ -18,15 +19,6 @@ import {
   type DatosAsesoria,
 } from "@/lib/mail/asesoria";
 
-const cotizacionSchema = z
-  .object({
-    colaboradores: z.coerce.number(),
-    sedes: z.string().max(4),
-    paquete: z.string().max(40).nullable(),
-    complementos: z.array(z.string().max(40)).max(50),
-    equipos: z.coerce.number(),
-  })
-  .optional();
 
 function generarFolio(): string {
   const fecha = new Date().toISOString().slice(0, 10).replace(/-/g, "");
@@ -42,7 +34,7 @@ export const bookSession = defineAction({
     clientEmail: z.string().email(),
     clientCompany: z.string().optional(),
     clientPhone: z.string().optional(),
-    cotizacion: cotizacionSchema, // cotización que el cliente armó en el cotizador (opcional)
+    cotizacion: cotizacionSchema.optional().catch(undefined), // opcional: si no valida, la cita se agenda igual
   }),
   handler: async (input, ctx) => {
     const env = getEnv();
@@ -71,7 +63,7 @@ export const bookSession = defineAction({
     let cotizacionVerificada: DatosAsesoria["cotizacion"] = null;
     if (input.cotizacion) {
       const v = validarCotizacion(input.cotizacion as CotizacionInput);
-      if (v.ok) cotizacionVerificada = { cotizacion: v.valor, quote: cotizar(v.valor) };
+      if (v.ok) cotizacionVerificada = { cotizacion: v.valor, quote: calcularDesdeInput(v.valor) };
     }
 
     // Evento en Teams SIN invitados: así Microsoft no envía su propia invitación.

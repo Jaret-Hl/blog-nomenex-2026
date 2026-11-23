@@ -2,7 +2,8 @@ import { defineAction, ActionError } from "astro:actions";
 import { z } from "astro:schema";
 import { randomBytes } from "node:crypto";
 import { validarSolicitud } from "@/lib/quote/validacion";
-import { cotizar } from "@/lib/quote/mapeo";
+import { calcularDesdeInput } from "@/lib/quote/emailTemplates";
+import { cotizacionSchema } from "./cotizacionSchema.server";
 import { enviadoRecientemente, marcarEnviado } from "@/lib/quote/rateLimit";
 import { buildClientEmail, buildInternalEmail, asuntoCliente, asuntoInterno } from "@/lib/quote/emailTemplates";
 import { sendMail } from "@/lib/send/sendEmail.server";
@@ -10,13 +11,7 @@ import { getEnv } from "@/lib/config/env.server";
 import { revisarSolicitud } from "@/lib/security/proteccion.server";
 
 const entradaSchema = z.object({
-  cotizacion: z.object({
-    colaboradores: z.coerce.number(),
-    sedes: z.string().max(4),
-    paquete: z.string().max(40).nullable(),
-    complementos: z.array(z.string().max(40)).max(50),
-    equipos: z.coerce.number(),
-  }),
+  cotizacion: cotizacionSchema,
   contacto: z.object({
     nombre: z.string().max(300),
     empresa: z.string().max(400),
@@ -74,7 +69,7 @@ export const sendQuote = defineAction({
       throw new ActionError({ code: "INTERNAL_SERVER_ERROR", message: "El servicio de correo no está disponible. Intenta más tarde." });
     }
 
-    const quote = cotizar(cotizacion);
+    const quote = calcularDesdeInput(cotizacion);
     const folio = generarFolio();
     const datos = { folio, contacto: solicitud.contacto, cotizacion, quote };
 
