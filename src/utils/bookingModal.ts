@@ -318,20 +318,13 @@ export class BookingModalManager {
   }
 }
 
-// Cotización que el cliente armó en el cotizador (si existe) para incluir su resumen en la asesoría
+// Cotización que el cliente armó en el cotizador (si existe). El servidor la valida y recalcula.
 function leerCotizacionGuardada() {
   try {
     const raw = sessionStorage.getItem("nomenex-cotizacion");
     if (!raw) return undefined;
     const g = JSON.parse(raw);
-    if (!g.paquete) return undefined;
-    return {
-      colaboradores: Number(g.colaboradores),
-      sedes: String(g.sedes),
-      paquete: g.paquete as string,
-      complementos: Array.isArray(g.complementos) ? (g.complementos as string[]) : [],
-      equipos: Number(g.equipos) || 1,
-    };
+    return g.paquete ? g : undefined;
   } catch {
     return undefined;
   }

@@ -202,3 +202,29 @@ a.btn { text-decoration: none; display: inline-block; }
   .top .in { flex-wrap: wrap; justify-content: center; }
   .top-nav { order: 3; width: 100%; justify-content: center; gap: 28px; }
 }
+
+/* Paso 1: tres preguntas */
+.paso1 { display: grid; grid-template-columns: minmax(0, 320px) minmax(0, 1fr); padding: 0; }
+.p1-izq { padding: 28px; border-right: 1px solid var(--linea); }
+.p1-der { padding: 28px; display: flex; flex-direction: column; gap: 24px; }
+.grupo-p { display: flex; flex-direction: column; }
+.campos { display: grid; grid-template-columns: repeat(auto-fit, minmax(148px, 1fr)); gap: 12px; margin-top: 4px; }
+.campos > * { min-width: 0; }
+.campos .c { display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 700; color: var(--gris); }
+.campos .ancho { grid-column: 1 / -1; }
+.campos input, .campos select { width: 100%; box-sizing: border-box; }
+.n-grande { width: 100%; box-sizing: border-box; text-align: center; font-weight: 800; font-size: 22px; padding: 10px 12px; }
+.p1-izq .slider { margin-top: 16px; }
+@media (max-width: 860px) {
+  .paso1 { grid-template-columns: minmax(0, 1fr); }
+  .p1-izq { border-right: none; border-bottom: 1px solid var(--linea); }
+  .p1-izq, .p1-der { padding: 22px 20px; }
+}
+
+/* Paso 3: búsqueda y filtros */
+.comp-busca { display: flex; flex-wrap: wrap; gap: 14px; align-items: flex-end; margin-top: 20px; }
+.comp-busca .busca { flex: 1 1 260px; display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 700; color: var(--gris); }
+#compBus { width: 100%; box-sizing: border-box; font: inherit; font-size: 15px; padding: 11px 14px; border: 1px solid var(--linea); border-radius: 10px; background: #fff; color: var(--tinta); }
+.filtros { display: flex; gap: 6px; flex-wrap: wrap; }
+.filtros button { font: inherit; font-size: 14px; font-weight: 700; padding: 10px 14px; border-radius: 999px; border: 1px solid var(--linea); background: #fff; color: var(--azul-osc); cursor: pointer; }
+.filtros button.sel { background: var(--azul); border-color: var(--azul); color: #fff; }
