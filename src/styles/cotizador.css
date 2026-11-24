@@ -204,21 +204,8 @@ a.btn { text-decoration: none; display: inline-block; }
 }
 
 /* Paso 1: tres preguntas */
-.paso1 { display: grid; grid-template-columns: minmax(0, 320px) minmax(0, 1fr); padding: 0; }
-.p1-izq { padding: 28px; border-right: 1px solid var(--linea); }
-.p1-der { padding: 28px; display: flex; flex-direction: column; gap: 24px; }
 .grupo-p { display: flex; flex-direction: column; }
-.campos { display: grid; grid-template-columns: repeat(auto-fit, minmax(148px, 1fr)); gap: 12px; margin-top: 4px; }
-.campos > * { min-width: 0; }
-.campos .c { display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 700; color: var(--gris); }
-.campos .ancho { grid-column: 1 / -1; }
-.campos input, .campos select { width: 100%; box-sizing: border-box; }
-.n-grande { width: 100%; box-sizing: border-box; text-align: center; font-weight: 800; font-size: 22px; padding: 10px 12px; }
-.p1-izq .slider { margin-top: 16px; }
 @media (max-width: 860px) {
-  .paso1 { grid-template-columns: minmax(0, 1fr); }
-  .p1-izq { border-right: none; border-bottom: 1px solid var(--linea); }
-  .p1-izq, .p1-der { padding: 22px 20px; }
 }
 
 /* Paso 3: búsqueda y filtros */
@@ -228,3 +215,46 @@ a.btn { text-decoration: none; display: inline-block; }
 .filtros { display: flex; gap: 6px; flex-wrap: wrap; }
 .filtros button { font: inherit; font-size: 14px; font-weight: 700; padding: 10px 14px; border-radius: 999px; border: 1px solid var(--linea); background: #fff; color: var(--azul-osc); cursor: pointer; }
 .filtros button.sel { background: var(--azul); border-color: var(--azul); color: #fff; }
+
+/* Versión nueva del cotizador: tabs de pasos, títulos de sección y portada */
+.sec-h{font-size:26px;line-height:1.2;font-weight:800;margin:40px 0 8px;padding-top:28px;border-top:1px solid var(--linea)}
+.sec-h span{color:var(--naranja-osc)}
+@media (max-width:860px){ .sec-h{font-size:22px;margin-top:30px;padding-top:22px} }
+.hero-pts{display:flex;flex-direction:column;gap:10px;margin-top:20px;list-style:none;max-width:400px}
+.hero-pts li{display:flex;align-items:flex-start;gap:10px;color:#fff;font-weight:600;font-size:15px;line-height:1.35}
+.hero-pts li::before{content:"✓";color:var(--naranja);font-weight:800;font-size:15px;line-height:1.35;flex:none}
+.pasos{display:flex;gap:4px;margin-bottom:28px;flex-wrap:wrap;list-style:none;border-bottom:2px solid var(--linea)}
+.pasos li{list-style:none;margin-bottom:-2px}
+.pasos button{display:flex;align-items:center;gap:8px;font:inherit;font-size:14px;font-weight:700;color:#8A94A1;padding:12px 18px;background:transparent;border:none;border-bottom:3px solid transparent;border-radius:6px 6px 0 0;cursor:pointer;transition:color .15s,border-color .15s,background .15s}
+.pasos button:hover{color:var(--azul-osc);background:var(--azul-claro)}
+.pasos button:focus-visible{outline:3px solid var(--azul);outline-offset:-3px}
+.pasos li.bloq button{opacity:.55}
+.pasos li b{display:grid;place-items:center;width:22px;height:22px;border-radius:50%;background:#E3E7EC;color:#fff;font-size:12px;flex:none}
+.pasos li.on button{color:var(--azul-osc);border-bottom-color:var(--naranja)} .pasos li.on b{background:var(--azul)}
+.pasos li.ok button{color:var(--azul-osc)} .pasos li.ok b{background:var(--naranja)}
+@media (max-width:600px){ .pasos button{padding:10px 12px;font-size:13px} }
+
+/* Paso 1: formulario estructurado (3 preguntas) */
+.f1 { display: grid; grid-template-columns: minmax(0, 300px) minmax(0, 1fr); margin-top: 24px; background: var(--blanco); border: 1px solid var(--linea); border-radius: 18px; overflow: hidden; }
+.f1-izq { padding: 32px 28px; border-right: 1px solid var(--linea); display: flex; flex-direction: column; justify-content: center; gap: 12px; }
+.f1-der { padding: 0 28px; display: flex; flex-direction: column; }
+.f1-bloque { padding: 26px 0; border-bottom: 1px solid var(--linea); }
+.f1-bloque:last-child { border-bottom: none; }
+.f1-titulo { font-size: 17px; font-weight: 800; line-height: 1.35; color: var(--tinta); }
+.f1-titulo span { color: var(--naranja-osc); }
+.f1-ayuda { font-size: 13px; font-weight: 600; color: var(--azul-osc); margin-top: 4px; }
+.f1-num { width: 100%; box-sizing: border-box; height: 52px; text-align: center; font: inherit; font-size: 22px; font-weight: 800; color: var(--tinta); background: #fff; border: 1px solid var(--linea); border-radius: 12px; }
+.f1-rango { width: 100%; margin: 8px 0 0; accent-color: var(--azul); }
+.f1-marcas { display: flex; justify-content: space-between; font-size: 12px; color: var(--gris); }
+.f1-grid { display: grid; gap: 14px 16px; margin-top: 16px; }
+.f1-grid.tres { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.f1-grid.cuatro { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.f1-campo { display: flex; flex-direction: column; gap: 6px; min-width: 0; font-size: 13px; color: var(--gris); }
+.f1-campo input, .f1-campo select { width: 100%; box-sizing: border-box; height: 46px; padding: 0 12px; font: inherit; font-size: 16px; color: var(--tinta); background: #fff; border: 1px solid var(--linea); border-radius: 10px; }
+.f1-campo input:focus, .f1-campo select:focus { outline: 2px solid var(--azul); border-color: var(--azul); }
+@media (max-width: 860px) {
+  .f1 { grid-template-columns: minmax(0, 1fr); }
+  .f1-izq { border-right: none; border-bottom: 1px solid var(--linea); padding: 24px 20px; }
+  .f1-der { padding: 0 20px; }
+  .f1-grid.tres, .f1-grid.cuatro { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}

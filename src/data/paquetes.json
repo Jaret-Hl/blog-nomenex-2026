@@ -1,35 +1,171 @@
 {
   "paquetes": [
-    { "id": "basico", "nivel": 1, "nombre": "Paquete Básico", "nombreCorto": "Básico", "etiqueta": "Esencial", "promesa": "Tu nómina calculada, timbrada y en cumplimiento, sin preocuparte.", "destacado": false, "base": null },
-    { "id": "profesional", "nivel": 2, "nombre": "Paquete Profesional", "nombreCorto": "Profesional", "etiqueta": "Corporativo", "promesa": "Consulta legal y fiscal, y control de incidencias conectado a tu nómina.", "destacado": true, "base": "Todo lo del Paquete Básico, más:" },
-    { "id": "premium", "nivel": 3, "nombre": "Paquete Premium", "nombreCorto": "Premium", "etiqueta": "Estratégico", "promesa": "Gestión integral de tu capital humano, con asesoría legal especializada.", "destacado": false, "base": "Todo lo del Paquete Profesional, más:" }
+    {
+      "id": "basico",
+      "nivel": 1,
+      "nombre": "Paquete Básico",
+      "nombreCorto": "Básico",
+      "etiqueta": "Esencial",
+      "promesa": "Tu nómina calculada, timbrada y en cumplimiento, sin preocuparte.",
+      "destacado": false,
+      "base": null
+    },
+    {
+      "id": "profesional",
+      "nivel": 2,
+      "nombre": "Paquete Profesional",
+      "nombreCorto": "Profesional",
+      "etiqueta": "Corporativo",
+      "promesa": "Control de incidencias conectado a tu nómina y portal digital del empleado.",
+      "destacado": true,
+      "base": "Todo lo del Paquete Básico, más:"
+    },
+    {
+      "id": "premium",
+      "nivel": 3,
+      "nombre": "Paquete Premium",
+      "nombreCorto": "Premium",
+      "etiqueta": "Estratégico",
+      "promesa": "Gestión integral de tu capital humano, con consultoría laboral.",
+      "destacado": false,
+      "base": "Todo lo del Paquete Profesional, más:"
+    }
   ],
   "servicios": [
-    { "grupo": "Nómina y timbrado", "icono": "nomina", "items": [
-      { "texto": "Cálculo de nómina, retenciones de ISR y descuentos FONACOT", "desde": 1 },
-      { "texto": "Liquidaciones y finiquitos", "desde": 1 },
-      { "texto": "Timbrado de CFDI de nómina", "desde": 1 },
-      { "texto": "Layout para dispersión de pagos", "desde": 1 } ] },
-    { "grupo": "Seguridad social e impuestos", "icono": "escudo", "items": [
-      { "texto": "Cálculo de cuotas IMSS e INFONAVIT", "desde": 1 },
-      { "texto": "Cálculo del ISN", "desde": 2 } ] },
-    { "grupo": "Asesoría y reportes", "icono": "reloj", "items": [
-      { "texto": "Consulta legal laboral y fiscal", "desde": 2 },
-      { "texto": "Asesoría legal especializada", "desde": 3 },
-      { "texto": "Representación legal: se cobra adicional", "corto": "Representación legal (se cobra adicional)", "desde": 3, "incluido": false },
-      { "texto": "Reportes estándar", "desde": 1 },
-      { "texto": "Soporte estándar por correo y teléfono", "desde": 1 },
-      { "texto": "Póliza contable", "desde": 2 },
-      { "texto": "Reportes personalizados", "desde": 2 } ] },
-    { "grupo": "Asistencia e incidencias", "icono": "reloj", "items": [
-      { "texto": "Checador biométrico incluido", "corto": "Checador biométrico incluido (el primero)", "desde": 2 },
-      { "texto": "Control de incidencias y asistencia", "desde": 2 },
-      { "texto": "Flujos de aprobación de vacaciones y de nómina", "desde": 2 } ] },
-    { "grupo": "Colaboradores", "icono": "personas", "items": [
-      { "texto": "Portal digital del empleado", "desde": 2 },
-      { "texto": "Administración de vales y fondo o caja de ahorro", "desde": 2 },
-      { "texto": "Social Hub: red social interna con noticias, grupos, organigrama y directorio, también en app móvil", "corto": "Social Hub (red social interna y app móvil)", "desde": 2 } ] },
-    { "grupo": "Talento", "icono": "lupa", "items": [
-      { "texto": "Reclutamiento y selección", "desde": 3 } ] }
+    {
+      "grupo": "Nómina y timbrado",
+      "icono": "nomina",
+      "items": [
+        {
+          "texto": "Cálculo de nómina, retenciones de ISR y descuentos FONACOT",
+          "desde": 1
+        },
+        {
+          "texto": "Liquidaciones y finiquitos",
+          "desde": 1
+        },
+        {
+          "texto": "Timbrado de CFDI de nómina",
+          "desde": 1
+        },
+        {
+          "texto": "Layout para dispersión de pagos",
+          "desde": 1
+        }
+      ]
+    },
+    {
+      "grupo": "Seguridad social e impuestos",
+      "icono": "escudo",
+      "items": [
+        {
+          "texto": "Cálculo de cuotas IMSS e INFONAVIT",
+          "desde": 1
+        },
+        {
+          "texto": "Cálculo del ISN",
+          "desde": 2
+        }
+      ]
+    },
+    {
+      "grupo": "Consultoría y reportes",
+      "icono": "reloj",
+      "items": [
+        {
+          "texto": "Consultoría laboral",
+          "desde": 3
+        },
+        {
+          "texto": "Representación legal: se cobra adicional",
+          "corto": "Representación legal (se cobra adicional)",
+          "desde": 3,
+          "incluido": false
+        },
+        {
+          "texto": "Reportes estándar",
+          "desde": 1
+        },
+        {
+          "texto": "Soporte estándar por correo y teléfono",
+          "desde": 1
+        },
+        {
+          "texto": "Póliza contable",
+          "desde": 2
+        },
+        {
+          "texto": "Reportes personalizados",
+          "desde": 2
+        }
+      ]
+    },
+    {
+      "grupo": "Asistencia e incidencias",
+      "icono": "reloj",
+      "items": [
+        {
+          "texto": "App de asistencia Rankmi, sin costo: checador individual por celular y kiosko grupal por tablet",
+          "corto": "App de asistencia Rankmi: checador por celular y kiosko por tablet",
+          "desde": 1
+        },
+        {
+          "texto": "Checador biométrico en comodato incluido",
+          "corto": "Checador biométrico en comodato incluido (el primero)",
+          "desde": 2
+        },
+        {
+          "texto": "Control de incidencias y asistencia",
+          "desde": 2
+        },
+        {
+          "texto": "Flujos de aprobación de vacaciones y de nómina",
+          "desde": 2
+        }
+      ]
+    },
+    {
+      "grupo": "Estructura y contratos",
+      "icono": "contrato",
+      "items": [
+        {
+          "texto": "Revisión inicial de contrato de trabajo",
+          "desde": 2
+        },
+        {
+          "texto": "Tabuladores y descripciones de puestos",
+          "desde": 2
+        }
+      ]
+    },
+    {
+      "grupo": "Colaboradores",
+      "icono": "personas",
+      "items": [
+        {
+          "texto": "Portal digital del empleado",
+          "desde": 2
+        },
+        {
+          "texto": "Administración de vales y fondo o caja de ahorro",
+          "desde": 2
+        },
+        {
+          "texto": "Social Hub: red social interna con noticias, grupos, organigrama y directorio, también en app móvil",
+          "corto": "Social Hub (red social interna y app móvil)",
+          "desde": 2
+        }
+      ]
+    },
+    {
+      "grupo": "Talento",
+      "icono": "lupa",
+      "items": [
+        {
+          "texto": "Reclutamiento y selección",
+          "desde": 3
+        }
+      ]
+    }
   ]
 }

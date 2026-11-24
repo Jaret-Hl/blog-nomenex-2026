@@ -25,7 +25,7 @@ export const PRECIOS = {
     inflacion: 0.035,
     /** De 1 a 5 colaboradores se cobra la cuota fija del paquete (lista5). */
     incluidos: 5,
-    maximo: 200,
+    maximo: 300,
     /** Descuento sobre el costo por colaborador de los tramos (22 % y luego 15 %). */
     descuento: 0.337,
     /** Los importes mensuales se redondean a múltiplos de este valor. */
@@ -34,10 +34,10 @@ export const PRECIOS = {
     lista5: { basico: 2890, profesional: 3490, premium: 7500 } as Record<PaqueteId, number>,
     /** Costo base por colaborador en cada tramo y extra por paquete. */
     tramos: [
-      { desde: 6, hasta: 20, base: 370, extra: { basico: 0, profesional: 120, premium: 220 } },
-      { desde: 21, hasta: 49, base: 265, extra: { basico: 0, profesional: 80, premium: 160 } },
-      { desde: 50, hasta: 119, base: 210, extra: { basico: 0, profesional: 50, premium: 110 } },
-      { desde: 120, hasta: 200, base: 190, extra: { basico: 0, profesional: 25, premium: 70 } },
+      { desde: 6, hasta: 20, base: 370, extra: { basico: 0, profesional: 85, premium: 220 } },
+      { desde: 21, hasta: 49, base: 265, extra: { basico: 0, profesional: 55, premium: 160 } },
+      { desde: 50, hasta: 119, base: 210, extra: { basico: 0, profesional: 35, premium: 110 } },
+      { desde: 120, hasta: 300, base: 190, extra: { basico: 0, profesional: 18, premium: 70 } },
     ],
   },
 
@@ -84,9 +84,9 @@ export const PRECIOS = {
   ],
 
   complementos: [
-    { id: "bio", grupo: "Asistencia y nómina", nombre: "Biométricos en comodato", descripcion: "Checadores sincronizados con la nómina, con instalación y soporte. El primero va incluido en Profesional y Premium.", tipo: "equipo", precio: 650 },
+    { id: "bio", grupo: "Asistencia y nómina", nombre: "Checador biométrico en comodato", descripcion: "Checador físico sincronizado con la nómina, con instalación y soporte. Solo se cobra su mantenimiento. El primero va incluido en Profesional y Premium.", tipo: "equipo", precio: 325 },
     { id: "disp", grupo: "Asistencia y nómina", nombre: "Dispersión de nómina", descripcion: "Pagos interbancarios a todos los colaboradores desde un archivo autorizado.", tipo: "colab", precio: 15 },
-    { id: "firma", grupo: "Asistencia y nómina", nombre: "Firma digital y gestión documental", descripcion: "Contratos, recibos y documentos firmados y resguardados en línea.", tipo: "colab", precio: 25 },
+    { id: "firma", grupo: "Asistencia y nómina", nombre: "Gestión documental", descripcion: "Contratos, recibos y documentos firmados y resguardados en línea.", tipo: "colab", precio: 25 },
     { id: "vales", grupo: "Bienestar y beneficios", nombre: "Vales de despensa", descripcion: "Integrados a la nómina, con su tratamiento fiscal.", tipo: "colab", precio: 10 },
     { id: "benef", grupo: "Bienestar y beneficios", nombre: "Beneficios+", descripcion: "Catálogo de beneficios y descuentos para colaboradores.", tipo: "colab", precio: 20 },
     { id: "recon", grupo: "Bienestar y beneficios", nombre: "Reconocimiento", descripcion: "Programa para reconocer logros y comportamientos.", tipo: "colab", precio: 15 },
@@ -98,13 +98,10 @@ export const PRECIOS = {
     { id: "encu", grupo: "Clima y cultura", nombre: "Encuestas y formularios", descripcion: "Incluye encuestas de salida y de satisfacción.", tipo: "colab", precio: 10 },
     { id: "serv", grupo: "Atención, análisis y estructura", nombre: "Employee Service", descripcion: "Mesa de atención para solicitudes y dudas de los colaboradores.", tipo: "colab", precio: 20 },
     { id: "ana", grupo: "Atención, análisis y estructura", nombre: "People Analytics", descripcion: "Tableros de indicadores de rotación, ausentismo y costo de personal.", tipo: "colab", precio: 25 },
-    { id: "contr", grupo: "Legal laboral", nombre: "Reestructura de contratos", descripcion: "Contratos individuales, colectivos y de prestación de servicios.", tipo: "unico", base: 6000, precio: 150 },
     { id: "tab", grupo: "Atención, análisis y estructura", nombre: "Tabuladores y descripciones de puestos", descripcion: "Diseño y actualización de tabuladores salariales y perfiles de puesto.", tipo: "unico", base: 8000, precio: 100 },
     { id: "nom35", grupo: "Cumplimiento y trámites", nombre: "Implementación de la NOM-035", descripcion: "Políticas, cuestionarios, resultados y acciones de seguimiento.", tipo: "unico", base: 5000, precio: 80 },
     // Accesorios de pago único (importes de facturas 2026).
     { id: "altarp", grupo: "Cumplimiento y trámites", nombre: "Alta de registro patronal", descripcion: "Trámite de alta del registro patronal ante el IMSS.", tipo: "unico", base: 5000, precio: 0 },
-    { id: "revcon", grupo: "Legal laboral", nombre: "Revisión de contrato de trabajo", descripcion: "Revisión y observaciones al contrato individual de trabajo.", tipo: "unico", base: 1000, precio: 0 },
-    { id: "revrit", grupo: "Legal laboral", nombre: "Revisión de reglamento interno", descripcion: "Revisión y observaciones al reglamento interior de trabajo.", tipo: "unico", base: 3000, precio: 0 },
     { id: "silla", grupo: "Cumplimiento y trámites", nombre: "Implementación y análisis de la Ley Silla", descripcion: "Análisis de puestos y medidas para cumplir con la reforma.", tipo: "unico", base: 5000, precio: 0 },
   ] as Complemento[],
 };
