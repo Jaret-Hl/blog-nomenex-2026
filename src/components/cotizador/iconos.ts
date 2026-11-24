@@ -9,5 +9,6 @@ export const ICONOS: Record<string, string> = {
   personas: base('<circle cx="9" cy="8" r="3.5"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6M16 4.5a3.5 3.5 0 010 7M18 14c2 .6 3 2.6 3 6"/>'),
   grafica: base('<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>'),
   lupa: base('<circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.3-4.3"/>'),
+  contrato: base('<path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5M10 13h6M10 17h4"/>'),
   balanza: base('<path d="M12 3v18M5 7h14M5 7l-3 7a3 3 0 006 0zM19 7l-3 7a3 3 0 006 0zM8 21h8"/>'),
 };

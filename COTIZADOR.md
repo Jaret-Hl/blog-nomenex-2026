@@ -12,7 +12,7 @@ Todo lo que cambia el negocio vive en archivos separados. No hace falta tocar co
 | IVA | `src/config/precios.ts` → `iva` |
 | Nombre, promesa y servicios de cada paquete | `src/data/paquetes.json` |
 | Límites de captura (colaboradores, equipos, razones, nóminas) | `src/lib/quote/validacion.ts` |
-| Pasos del cotizador | `src/config/pasos.ts` |
+| Pasos del cotizador (tres: empresa y paquetes, complementos, resumen) | `src/config/pasos.ts` |
 | Textos del banner | `src/sections/Hero.astro` |
 | Contenido de los correos | `src/lib/quote/emailTemplates.ts` y `src/lib/mail/asesoria.ts` |
 | Colores y tipografía | `src/styles/cotizador.css` y `src/layouts/Layout.astro` |
@@ -32,7 +32,7 @@ Opcionales: `MS_QUOTE_NOTIFY_EMAIL`, `MS_TIMEZONE`, `PUBLIC_TURNSTILE_SITE_KEY` 
 
 ## Validaciones de un envío
 
-- Colaboradores de 1 a 1000 (más de 200 se marca como cotización a la medida); razones sociales y registros de 1 a 50; nóminas de 1 a 20; asimilados de 0 a 20.
+- Colaboradores de 1 a 1000 (más de 300 se marca como cotización a la medida; la barra llega a 300); razones sociales y registros de 1 a 50; nóminas de 1 a 20; asimilados de 0 a 20.
 - Periodicidad y tipo de salario deben ser valores permitidos; el paquete y los complementos deben existir en el catálogo.
 - Biométricos de 1 a 100 equipos.
 - Nombre, empresa y correo válidos; teléfono opcional de 10 dígitos; aviso de privacidad obligatorio.

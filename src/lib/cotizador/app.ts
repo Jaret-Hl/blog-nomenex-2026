@@ -44,7 +44,7 @@ function cargar(): Estado {
     const g = JSON.parse(raw) as Partial<Estado>;
     const ids = new Set(PRECIOS.complementos.map((c) => c.id));
     return {
-      paso: acotar(Number(g.paso), 1, 4, 1),
+      paso: acotar(Number(g.paso), 1, 3, 1),
       colaboradores: acotar(Number(g.colaboradores), 1, MAX_COLABORADORES, 25),
       razones: acotar(Number(g.razones), RANGOS.razones[0], RANGOS.razones[1], 1),
       registros: acotar(Number(g.registros), RANGOS.registros[0], RANGOS.registros[1], 1),
@@ -99,7 +99,7 @@ function renderPlanes() {
     caja.replaceChildren();
     if (r.aMedida) {
       caja.className = "precio na";
-      caja.append(el("b", "", "Cotización a la medida"), el("span", "por", "más de 200 colaboradores"));
+      caja.append(el("b", "", "Cotización a la medida"), el("span", "por", "más de 300 colaboradores"));
       return;
     }
     caja.className = "precio";
@@ -201,9 +201,9 @@ function setColaboradores(valor: number | string) {
   estado.colaboradores = n;
   const rango = $<HTMLInputElement>("#rango");
   const num = $<HTMLInputElement>("#num");
-  if (rango) rango.value = String(Math.min(n, 200));
+  if (rango) rango.value = String(Math.min(n, 300));
   if (num && document.activeElement !== num) num.value = String(n);
-  $("#aviso200")?.classList.toggle("on", n > 200);
+  $("#avisoMedida")?.classList.toggle("on", n > 300);
   guardar();
   renderTodo();
 }
@@ -322,15 +322,15 @@ function renderTodo() {
   renderBarra();
   renderComplementos();
   filtrarComp();
-  if (estado.paso === 4) renderResumen();
+  if (estado.paso === 3) renderResumen();
 }
 
 // ---------- Navegación ----------
 function ir(p: number, desplazar = true) {
   let destino = p;
   const aviso = $("#avisoPaq");
-  if (destino >= 3 && !estado.paquete) {
-    destino = 2;
+  if (destino >= 2 && !estado.paquete) {
+    destino = 1;
     aviso?.classList.add("on");
   } else {
     aviso?.classList.remove("on");
@@ -342,14 +342,14 @@ function ir(p: number, desplazar = true) {
     const k = Number(li.dataset.p);
     li.classList.toggle("on", k === destino);
     li.classList.toggle("ok", k < destino);
-    li.classList.toggle("bloq", k >= 3 && !estado.paquete);
+    li.classList.toggle("bloq", k >= 2 && !estado.paquete);
     const boton = li.querySelector("button");
     if (boton) {
       if (k === destino) boton.setAttribute("aria-current", "step");
       else boton.removeAttribute("aria-current");
     }
   });
-  if (destino === 4) renderResumen();
+  if (destino === 3) renderResumen();
   if (desplazar) window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
@@ -462,7 +462,7 @@ function sincronizarControles() {
     if (c) c.value = String(valor);
   };
   set("#num", estado.colaboradores);
-  set("#rango", Math.min(estado.colaboradores, 200));
+  set("#rango", Math.min(estado.colaboradores, 300));
   set("#razones", estado.razones);
   set("#regs", estado.registros);
   set("#salarios", estado.salarios);
@@ -470,7 +470,7 @@ function sincronizarControles() {
   set("#periodo", estado.periodo);
   set("#asim", estado.asimilados);
   set("#periodoAsim", estado.periodoAsim);
-  $("#aviso200")?.classList.toggle("on", estado.colaboradores > 200);
+  $("#avisoMedida")?.classList.toggle("on", estado.colaboradores > 300);
 }
 
 function bindEventos() {
@@ -566,7 +566,7 @@ function bindEventos() {
   // Agenda desde el encabezado: lleva al resumen y enfoca el formulario
   $("#ctaAgenda")?.addEventListener("click", (e) => {
     e.preventDefault();
-    ir(4);
+    ir(3);
     $<HTMLInputElement>("#fNom")?.focus();
   });
 
@@ -584,5 +584,5 @@ export function initCotizador() {
   sincronizarControles();
   pintarPlanes();
   renderTodo();
-  ir(location.hash === "#resumen" ? 4 : estado.paso, location.hash !== "#resumen");
+  ir(location.hash === "#resumen" ? 3 : estado.paso, location.hash !== "#resumen");
 }
