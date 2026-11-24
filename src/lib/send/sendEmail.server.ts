@@ -30,7 +30,7 @@ export async function sendMail({ to, subject, html, replyTo, adjuntos }: SendMai
         message: {
           subject,
           body: { contentType: "HTML", content: html },
-          ...(replyTo ? { replyToRecipients: [{ emailAddress: { address: replyTo } }] } : {}),
+          ...(replyTo ? { replyTo: [{ emailAddress: { address: replyTo } }] } : {}),
           toRecipients: [{ emailAddress: { address: to } }],
           ...(adjuntos?.length
             ? {
